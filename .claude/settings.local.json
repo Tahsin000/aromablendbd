@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(composer require *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(node -e \"const m = require\\('@inertiajs/vue3'\\); console.log\\(Object.keys\\(m\\)\\)\")",
+      "Bash(php artisan *)"
+    ]
+  }
+}

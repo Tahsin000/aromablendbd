@@ -1,0 +1,308 @@
+<template>
+    <Head :title="product.name + ' - অর্গানিক চা'" />
+    <div class="min-h-screen bg-white">
+        <StickyRibbon />
+
+        <!-- Breadcrumb -->
+        <div class="bg-gray-50 py-4 mt-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <nav class="flex items-center gap-2 text-sm text-gray-600" dir="ltr">
+                    <a href="/" class="hover:text-green-600 transition-colors">হোম</a>
+                    <ChevronRightIcon class="w-4 h-4" />
+                    <a href="/#products" class="hover:text-green-600 transition-colors">পণ্য</a>
+                    <ChevronRightIcon class="w-4 h-4" />
+                    <span class="text-green-600 font-medium">{{ product.name }}</span>
+                </nav>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid lg:grid-cols-2 gap-12">
+                <!-- Image Gallery -->
+                <div class="space-y-4">
+                    <!-- Main Image with zoom -->
+                    <div class="aspect-square bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl overflow-hidden shadow-lg relative group cursor-zoom-in"
+                         @mousemove="onZoomMove" @mouseleave="zoomLevel = 1" @mouseenter="zoomLevel = 2">
+                        <img :src="product.images[activeImage]" :alt="product.name"
+                             class="w-full h-full object-cover transition-transform duration-300"
+                             :style="{ transform: `scale(${zoomLevel})`, transformOrigin: `${zoomX}% ${zoomY}%` }" />
+                        <!-- Discount overlay -->
+                        <div class="absolute top-4 left-4 bg-red-500 text-white text-lg font-bold px-4 py-2 rounded-xl shadow-lg">
+                            {{ formatBangla(discountPercent) }}% ছাড়
+                        </div>
+                        <!-- Badge -->
+                        <div class="absolute top-4 right-4 bg-green-600 text-white text-sm font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                            <TagIcon class="w-4 h-4" />
+                            {{ product.badge }}
+                        </div>
+                    </div>
+                    <!-- Thumbnails -->
+                    <div class="flex gap-3">
+                        <div v-for="(img, i) in product.images" :key="i"
+                             @click="activeImage = i"
+                             :class="`aspect-video rounded-xl overflow-hidden cursor-pointer border-3 transition-all duration-300 ${activeImage === i ? 'border-green-600 shadow-md scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`">
+                            <img :src="img" class="w-full h-full object-cover" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Info -->
+                <div class="space-y-6">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">{{ product.name }}</h1>
+                        <div class="flex items-center gap-2">
+                            <div class="flex">
+                                <StarIcon v-for="s in 5" :key="s" class="w-5 h-5 text-yellow-400" />
+                            </div>
+                            <span class="text-sm text-gray-500">({{ formatBangla(128) }}টি রিভিউ)</span>
+                        </div>
+                    </div>
+
+                    <!-- Price Block -->
+                    <div class="bg-gray-50 rounded-2xl p-6 space-y-3">
+                        <div class="flex items-baseline gap-4">
+                            <span class="text-5xl font-bold text-green-600">{{ formatBangla(product.price) }}৳</span>
+                            <span class="text-2xl text-gray-400 line-through">{{ formatBangla(product.original_price) }}৳</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="bg-red-100 text-red-700 text-sm font-bold px-3 py-1 rounded-full">
+                                {{ formatBangla(discountPercent) }}% ছাড়
+                            </span>
+                            <span class="bg-green-100 text-green-700 text-sm font-bold px-3 py-1 rounded-full">
+                                আপনি সাশ্রয় করছেন {{ formatBangla(savingsPerUnit) }}৳
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- First order discount banner -->
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 flex items-start gap-3">
+                        <GiftIcon class="w-8 h-8 text-green-600 flex-shrink-0 mt-1" />
+                        <div>
+                            <p class="font-bold text-green-800">প্রথম অর্ডারে ২০% অতিরিক্ত ছাড়!</p>
+                            <p class="text-sm text-green-600">নতুন গ্রাহকদের জন্য স্বাগত অফার - স্বয়ংক্রিয়ভাবে প্রযোজ্য</p>
+                        </div>
+                    </div>
+
+                    <!-- Offer countdown -->
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4">
+                        <div class="flex items-center gap-2 mb-3">
+                            <ClockIcon class="w-5 h-5 text-amber-600" />
+                            <span class="font-bold text-amber-800">অফার শেষ হতে বাকি</span>
+                        </div>
+                        <div class="flex gap-3">
+                            <div v-for="unit in ['hours', 'minutes', 'seconds']" :key="unit" class="text-center">
+                                <div class="bg-white rounded-lg px-3 py-2 shadow-sm border border-amber-200">
+                                    <span class="text-2xl font-bold font-mono text-amber-700">{{ countdown[unit] }}</span>
+                                </div>
+                                <span class="text-xs text-amber-600 mt-1 block">{{ unit === 'hours' ? 'ঘন্টা' : unit === 'minutes' ? 'মিনিট' : 'সেকেন্ড' }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stock indicator -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2" :class="stockColor">
+                                <component :is="stockIcon" class="w-5 h-5" />
+                                <span class="font-medium">{{ stockText }}</span>
+                            </div>
+                            <span class="text-sm text-gray-500">{{ formatBangla(product.stock) }}টি বাকি</span>
+                        </div>
+                        <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full transition-all duration-1000"
+                                 :class="stockBarColor"
+                                 :style="{ width: `${stockPercent}%` }"></div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="prose prose-sm max-w-none">
+                        <p class="text-gray-600 leading-relaxed text-lg">{{ product.desc }}</p>
+                    </div>
+
+                    <!-- Quantity + Price Calculator -->
+                    <div class="bg-gray-50 rounded-2xl p-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-700 font-semibold text-lg">পরিমাণ:</span>
+                            <div class="flex items-center gap-2">
+                                <button @click="quantity = Math.max(1, quantity - 1)"
+                                        class="w-10 h-10 rounded-lg border-2 border-gray-200 hover:border-green-600 transition-colors flex items-center justify-center text-xl font-bold text-gray-600 hover:text-green-600">-</button>
+                                <input v-model.number="quantity" type="number" min="1"
+                                       class="w-16 text-center text-xl font-bold bg-white border-2 border-gray-200 rounded-lg py-1 focus:border-green-600 focus:ring-2 focus:ring-green-500 outline-none" />
+                                <button @click="quantity++"
+                                        class="w-10 h-10 rounded-lg border-2 border-gray-200 hover:border-green-600 transition-colors flex items-center justify-center text-xl font-bold text-gray-600 hover:text-green-600">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Live price calculation -->
+                        <div class="space-y-2 text-sm border-t border-gray-200 pt-4">
+                            <div class="flex justify-between text-gray-600">
+                                <span>{{ product.name }} × {{ formatBangla(quantity) }}</span>
+                                <span>{{ formatBangla(subtotal) }}৳</span>
+                            </div>
+                            <div class="flex justify-between text-green-600 font-medium">
+                                <span>প্রথম অর্ডার ছাড় (২০%)</span>
+                                <span>-{{ formatBangla(discountAmount) }}৳</span>
+                            </div>
+                            <div class="flex justify-between text-amber-600 font-medium">
+                                <span>সাবটোটাল</span>
+                                <span>{{ formatBangla(afterDiscount) }}৳</span>
+                            </div>
+                            <div class="flex justify-between font-bold text-xl pt-3 border-t border-gray-200">
+                                <span>মোট</span>
+                                <span class="text-green-600">{{ formatBangla(totalPrice) }}৳</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CTA Buttons -->
+                    <div class="flex gap-3">
+                        <button @click="goToCheckout"
+                                class="flex-1 bg-green-600 hover:bg-green-700 text-white text-lg font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center gap-2">
+                            <ShoppingCartIcon class="w-5 h-5" />
+                            চেকআউটে যান
+                        </button>
+                    </div>
+
+                    <!-- Trust badges -->
+                    <div class="grid grid-cols-3 gap-4 pt-6 border-t border-gray-200">
+                        <div class="text-center group">
+                            <TruckIcon class="w-8 h-8 text-green-600 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                            <p class="text-xs text-gray-600">দ্রুত ডেলিভারি</p>
+                        </div>
+                        <div class="text-center group">
+                            <ShieldCheckIcon class="w-8 h-8 text-green-600 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                            <p class="text-xs text-gray-600">মানি-ব্যাক</p>
+                        </div>
+                        <div class="text-center group">
+                            <BanknotesIcon class="w-8 h-8 text-green-600 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                            <p class="text-xs text-gray-600">ক্যাশ অন ডেলিভারি</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Products -->
+            <div class="mt-20">
+                <h2 class="text-2xl font-bold text-center text-gray-900 mb-10">সম্পর্কিত পণ্য</h2>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div v-for="p in relatedProducts" :key="p.id"
+                         @click="goToProduct(p.id)"
+                         class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-100 cursor-pointer group">
+                        <div class="h-48 bg-gradient-to-br from-green-100 to-emerald-100 overflow-hidden">
+                            <img :src="p.image" :alt="p.name" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                        </div>
+                        <div class="p-5">
+                            <h4 class="text-lg font-bold text-gray-900">{{ p.name }}</h4>
+                            <div class="flex items-baseline gap-2 mt-2">
+                                <span class="text-xl font-bold text-green-600">{{ formatBangla(p.price) }}৳</span>
+                                <span class="text-sm text-gray-400 line-through">{{ formatBangla(p.original_price) }}৳</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { Head, router } from '@inertiajs/vue3';
+import StickyRibbon from '../Components/Landing/StickyRibbon.vue';
+import {
+    ChevronRightIcon, TagIcon, GiftIcon, ClockIcon, ShoppingCartIcon,
+    TruckIcon, ShieldCheckIcon, BanknotesIcon, StarIcon,
+    ExclamationTriangleIcon, CheckCircleIcon,
+} from '@heroicons/vue/24/outline';
+
+const props = defineProps({
+    product: { type: Object, required: true },
+    products: { type: Object, required: true },
+});
+
+const quantity = ref(1);
+const activeImage = ref(0);
+const zoomLevel = ref(1);
+const zoomX = ref(50);
+const zoomY = ref(50);
+const countdown = ref({ hours: '00', minutes: '00', seconds: '00' });
+let timer = null;
+
+const relatedProducts = computed(() =>
+    Object.values(props.products).filter(p => p.id !== props.product.id).slice(0, 3)
+);
+
+const discountPercent = computed(() => Math.round((1 - props.product.price / props.product.original_price) * 100));
+const savingsPerUnit = computed(() => props.product.original_price - props.product.price);
+
+// Live price calculation
+const subtotal = computed(() => props.product.price * quantity.value);
+const discountAmount = computed(() => Math.round(subtotal.value * 0.20));
+const afterDiscount = computed(() => subtotal.value - discountAmount.value);
+const totalPrice = computed(() => afterDiscount.value);
+
+// Stock indicators
+const stockPercent = computed(() => Math.min(100, (props.product.stock / 100) * 100));
+const stockColor = computed(() => {
+    if (props.product.stock <= 10) return 'text-red-600';
+    if (props.product.stock <= 30) return 'text-amber-600';
+    return 'text-green-600';
+});
+const stockBarColor = computed(() => {
+    if (props.product.stock <= 10) return 'bg-red-500';
+    if (props.product.stock <= 30) return 'bg-amber-500';
+    return 'bg-green-500';
+});
+const stockText = computed(() => {
+    if (props.product.stock <= 10) return 'শেষ হতে চলছে!';
+    if (props.product.stock <= 30) return 'সীমিত স্টক';
+    return 'স্টকে আছে';
+});
+const stockIcon = computed(() => {
+    if (props.product.stock <= 10) return ExclamationTriangleIcon;
+    return CheckCircleIcon;
+});
+
+function onZoomMove(e) {
+    const rect = e.target.getBoundingClientRect();
+    zoomX.value = ((e.clientX - rect.left) / rect.width) * 100;
+    zoomY.value = ((e.clientY - rect.top) / rect.height) * 100;
+}
+
+function formatBangla(n) {
+    const b = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+    return String(Math.round(n)).replace(/\d/g, d => b[d]);
+}
+
+function updateCountdown() {
+    const end = new Date();
+    end.setHours(23, 59, 59, 0);
+    const diff = Math.max(0, end - new Date());
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    const pad = (x) => String(x).padStart(2, '0');
+    countdown.value = { hours: pad(h), minutes: pad(m), seconds: pad(s) };
+}
+
+function goToCheckout() {
+    router.post('/checkout', {
+        items: [{
+            product_id: props.product.id,
+            quantity: quantity.value,
+            unit_price: props.product.price,
+        }]
+    }, { preserveScroll: false });
+}
+
+function goToProduct(id) {
+    router.visit(`/product/${id}`);
+}
+
+onMounted(() => {
+    updateCountdown();
+    timer = setInterval(updateCountdown, 1000);
+});
+onUnmounted(() => { if (timer) clearInterval(timer); });
+</script>

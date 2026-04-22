@@ -1,0 +1,68 @@
+<?php
+
+return [
+    'green-tea' => [
+        'id' => 'green-tea',
+        'name' => 'স্পেশাল গ্রিন টি',
+        'slug' => 'green-tea',
+        'desc' => 'সিলেটের পাহাড়ি বাগানের সবচেয়ে সতেজ সবুজ চা পাতা। অ্যান্টিঅক্সিড্যান্টে ভরপুর, প্রতিদিনের স্বাস্থ্যের জন্য আদর্শ। হালকা মিষ্টি স্বাদ যা আপনাকে সুস্থ রাখবে সারাদিন।',
+        'price' => 350,
+        'original_price' => 450,
+        'badge' => 'বেস্ট সেলার',
+        'stock' => 47,
+        'image' => 'https://images.unsplash.com/photo-1627435601361-ec25f5b1d015?w=600&h=400&fit=crop&q=80',
+        'images' => [
+            'https://images.unsplash.com/photo-1627435601361-ec25f5b1d015?w=800&h=600&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1563822249366-3efb23b8e3d9?w=800&h=600&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=800&h=600&fit=crop&q=80',
+        ],
+    ],
+    'black-tea' => [
+        'id' => 'black-tea',
+        'name' => 'প্রিমিয়াম ব্ল্যাক টি',
+        'slug' => 'black-tea',
+        'desc' => 'গাঢ় সুগন্ধি কালো চা — সকালের নাস্তার পারফেক্ট সঙ্গী। দীর্ঘ সময় ধরে ফার্মেন্টেশন করা প্রতিটি পাতা, যা দেয় শক্তিশালী স্বাদ এবং গভীর অ্যারোমা।',
+        'price' => 280,
+        'original_price' => 350,
+        'badge' => 'নতুন',
+        'stock' => 62,
+        'image' => 'https://images.unsplash.com/photo-1571934811356-5cc0612e5328?w=600&h=400&fit=crop&q=80',
+        'images' => [
+            'https://images.unsplash.com/photo-1571934811356-5cc0612e5328?w=800&h=600&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1597318181409-cf64d0b5d923?w=800&h=600&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=800&h=600&fit=crop&q=80',
+        ],
+    ],
+    'floral-tea' => [
+        'id' => 'floral-tea',
+        'name' => 'ফ্লোরাল হার্বাল টি',
+        'slug' => 'floral-tea',
+        'desc' => 'গোলাপ ও জুঁই ফুলের মিশ্রণে তৈরি মনোরম হার্বাল চা। স্ট্রেস কমাতে ও ভালো ঘুমের জন্য জাদুকরী। সীমিত এডিশন — এখনই সংগ্রহ করুন।',
+        'price' => 420,
+        'original_price' => 550,
+        'badge' => 'সীমিত',
+        'stock' => 18,
+        'image' => 'https://images.unsplash.com/photo-1597481684151-9330d90c7858?w=600&h=400&fit=crop&q=80',
+        'images' => [
+            'https://images.unsplash.com/photo-1597481684151-9330d90c7858?w=800&h=600&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1558160074-4d7d8bdf4256?w=800&h=600&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1564890369478-c89ca6d9c3e9?w=800&h=600&fit=crop&q=80',
+        ],
+    ],
+    'combo-pack' => [
+        'id' => 'combo-pack',
+        'name' => 'অর্গানিক কম্বো প্যাক',
+        'slug' => 'combo-pack',
+        'desc' => 'তিন ধরনের চা একসাথে — গ্রিন, ব্ল্যাক ও হার্বাল টি। পরিবারের সবার জন্য পারফেক্ট গিফট প্যাক। বিশেষ মূল্যে সাশ্রয়।',
+        'price' => 950,
+        'original_price' => 1350,
+        'badge' => 'সেরা ডিল',
+        'stock' => 31,
+        'image' => 'https://images.unsplash.com/photo-1563822249366-3efb23b8e3d9?w=600&h=400&fit=crop&q=80',
+        'images' => [
+            'https://images.unsplash.com/photo-1563822249366-3efb23b8e3d9?w=800&h=600&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1627435601361-ec25f5b1d015?w=800&h=600&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1571934811356-5cc0612e5328?w=800&h=600&fit=crop&q=80',
+        ],
+    ],
+];
