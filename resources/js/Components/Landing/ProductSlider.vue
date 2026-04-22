@@ -5,44 +5,54 @@
              :style="{ transform: `translateX(-${translateX}%)`, cursor: isDragging ? 'grabbing' : 'grab' }">
             <div v-for="(item, i) in trackItems" :key="`${item.id}-${i}`"
                  :style="{ width: `${slideWidth}%`, flexShrink: 0 }"
-                 class="px-3">
-                <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-100 group cursor-pointer h-full"
-                     @click="!isDragging && goToProduct(item.id)"
-                     @mouseenter="pauseAutoplay"
-                     @mouseleave="resumeAutoplay">
+                 class="px-1.5 sm:px-2">
+                <div class="bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-100">
                     <!-- Image -->
-                    <div class="relative h-48 bg-gradient-to-br from-green-100 to-emerald-100 overflow-hidden">
+                    <div class="relative h-36 sm:h-44 md:h-48 bg-gradient-to-br from-green-100 to-emerald-100 overflow-hidden cursor-pointer"
+                         @click="goToProduct(item.id)">
                         <img :src="item.image" :alt="item.name"
-                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                             class="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
                              loading="lazy" />
                         <!-- Badge -->
-                        <span class="absolute top-3 left-3 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
-                            <TagIcon class="w-3 h-3" />
+                        <span class="absolute top-2 left-2 sm:top-3 sm:left-3 bg-green-600 text-white text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 rounded-full flex items-center gap-1">
+                            <TagIcon class="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                             {{ item.badge }}
                         </span>
                         <!-- Discount Badge -->
-                        <span class="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                        <span class="absolute top-2 right-2 sm:top-3 sm:right-3 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
                             -{{ discountPercent(item) }}%
                         </span>
                         <!-- Stock urgency -->
-                        <span v-if="item.stock <= 20" class="absolute bottom-3 left-3 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
-                            <FireIcon class="w-3 h-3" />
-                           仅剩 {{ formatBangla(item.stock) }}টি
+                        <span v-if="item.stock <= 20" class="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-orange-500 text-white text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full flex items-center gap-1">
+                            <FireIcon class="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                           {{ formatBangla(item.stock) }}টি বাকি
                         </span>
                     </div>
                     <!-- Content -->
-                    <div class="p-5">
-                        <h4 class="text-lg font-bold text-gray-900 mb-2">{{ item.name }}</h4>
-                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ truncate(item.desc) }}</p>
+                    <div class="p-3 sm:p-4 md:p-5">
+                        <h4 class="text-sm sm:text-base md:text-lg font-bold text-gray-900 mb-1.5 sm:mb-2 cursor-pointer hover:text-green-600 transition-colors" @click="goToProduct(item.id)">{{ item.name }}</h4>
+                        <p class="text-gray-600 text-[11px] sm:text-xs md:text-sm mb-2 sm:mb-3 line-clamp-2">{{ truncate(item.desc) }}</p>
                         <!-- Price -->
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-baseline gap-2">
-                                <span class="text-2xl font-bold text-green-600">{{ formatBangla(item.price) }}৳</span>
-                                <span class="text-sm text-gray-400 line-through">{{ formatBangla(item.original_price) }}৳</span>
+                        <div class="flex items-baseline gap-1.5 sm:gap-2 mb-2 sm:mb-3 md:mb-4">
+                            <span class="text-base sm:text-xl md:text-2xl font-bold text-green-600">{{ formatBangla(item.price) }}৳</span>
+                            <span class="text-[10px] sm:text-xs md:text-sm text-gray-400 line-through">{{ formatBangla(item.original_price) }}৳</span>
+                        </div>
+                        <!-- Qty + Checkout -->
+                        <div class="space-y-2 sm:space-y-3">
+                            <!-- Qty selector -->
+                            <div class="flex items-center gap-1.5 sm:gap-2">
+                                <span class="text-[11px] sm:text-xs md:text-sm text-gray-600">পরিমাণ:</span>
+                                <button @click.stop="quantities[item.id] = Math.max(1, (quantities[item.id] || 1) - 1)"
+                                        class="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-lg border border-gray-200 hover:border-green-600 hover:bg-green-50 transition-colors flex items-center justify-center font-bold text-sm">-</button>
+                                <span class="w-6 sm:w-7 md:w-8 text-center font-bold text-xs sm:text-sm">{{ formatBangla(quantities[item.id] || 1) }}</span>
+                                <button @click.stop="quantities[item.id] = (quantities[item.id] || 1) + 1"
+                                        class="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-lg border border-gray-200 hover:border-green-600 hover:bg-green-50 transition-colors flex items-center justify-center font-bold text-sm">+</button>
                             </div>
-                            <button class="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors flex items-center gap-1">
-                                <ShoppingBagIcon class="w-4 h-4" />
-                                দেখুন
+                            <!-- Checkout button -->
+                            <button @click.stop="buyNow(item.id)"
+                                    class="w-full bg-green-600 hover:bg-green-700 text-white text-[11px] sm:text-xs md:text-sm font-bold py-2 sm:py-2.5 md:py-3 rounded-lg transition-colors flex items-center justify-center gap-1.5 sm:gap-2 shadow hover:shadow-md">
+                                <ShoppingBagIcon class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                চেকআউট করুন
                             </button>
                         </div>
                     </div>
@@ -70,8 +80,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { TagIcon, ShoppingBagIcon, ChevronLeftIcon, ChevronRightIcon, FireIcon } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -84,22 +93,31 @@ const currentSlide = ref(0);
 const isDragging = ref(false);
 const dragStartX = ref(0);
 const dragOffset = ref(0);
+const quantities = ref({});
+const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1024);
 let autoplayTimer = null;
+
+function updateWidth() { windowWidth.value = window.innerWidth; }
+
+const responsiveSlides = computed(() => {
+    const w = windowWidth.value;
+    if (w < 640) return 1;
+    if (w < 1024) return 2;
+    return Math.min(props.slidesPerView, 3);
+});
 
 // Infinite loop: clone first/last items
 const trackItems = computed(() => {
     const p = props.products;
-    if (p.length <= props.slidesPerView) return p;
-    return [...p.slice(-props.slidesPerView), ...p, ...p.slice(0, props.slidesPerView)];
+    const n = responsiveSlides.value;
+    if (p.length <= n) return p;
+    return [...p.slice(-n), ...p, ...p.slice(0, n)];
 });
 
-const slidesPerView = computed(() => props.slidesPerView);
-const totalSlides = computed(() => props.products.length);
+const slidesPerView = computed(() => responsiveSlides.value);
 const slideWidth = computed(() => 100 / slidesPerView.value);
 
-// Offset for cloned items
-const realStart = computed(() => props.slidesPerView);
-const realEnd = computed(() => props.products.length + props.slidesPerView - 1);
+const realEnd = computed(() => props.products.length + responsiveSlides.value - 1);
 
 const translateX = computed(() => {
     const total = trackItems.value.length;
@@ -107,21 +125,20 @@ const translateX = computed(() => {
 });
 
 const activeDot = computed(() => {
-    let idx = currentSlide.value - props.slidesPerView;
+    let idx = currentSlide.value - responsiveSlides.value;
     if (idx < 0) idx += props.products.length;
     return idx % props.products.length;
 });
 
 const totalDots = computed(() => props.products.length);
-const canGoNext = computed(() => props.products.length > props.slidesPerView);
-const canGoPrev = computed(() => props.products.length > props.slidesPerView);
+const canGoNext = computed(() => props.products.length > responsiveSlides.value);
+const canGoPrev = computed(() => props.products.length > responsiveSlides.value);
 
 function next() {
     currentSlide.value++;
-    // Infinite loop reset
     if (currentSlide.value >= realEnd.value) {
         setTimeout(() => {
-            currentSlide.value = props.slidesPerView;
+            currentSlide.value = responsiveSlides.value;
         }, 500);
     }
 }
@@ -136,11 +153,16 @@ function prev() {
 }
 
 function goToSlide(dotIndex) {
-    currentSlide.value = dotIndex + props.slidesPerView;
+    currentSlide.value = dotIndex + responsiveSlides.value;
+}
+
+// Navigate to checkout page with product pre-filled
+function buyNow(productId) {
+    window.location.href = `/checkout?product_id=${productId}&quantity=${quantities.value[productId] || 1}`;
 }
 
 function goToProduct(id) {
-    router.visit(`/product/${id}`);
+    window.location.href = `/product/${id}`;
 }
 
 // Autoplay
@@ -196,9 +218,12 @@ function truncate(text, len = 70) {
 }
 
 onMounted(() => {
-    // Initialize to first real slide (after clones)
-    currentSlide.value = props.slidesPerView;
+    currentSlide.value = responsiveSlides.value;
     startAutoplay();
+    window.addEventListener('resize', updateWidth);
 });
-onUnmounted(() => stopAutoplay());
+onUnmounted(() => {
+    stopAutoplay();
+    window.removeEventListener('resize', updateWidth);
+});
 </script>

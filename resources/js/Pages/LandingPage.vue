@@ -2,7 +2,7 @@
     <Head title="অর্গানিক - প্রাকৃতিক চা" />
     <div class="min-h-screen">
         <StickyRibbon />
-        <HeroSection @go-product="goToProduct" />
+        <HeroSection :products="products" @go-product="goToProduct" />
         <ProductOverview :products="products" />
         <OfferSection />
         <ProductGallery />

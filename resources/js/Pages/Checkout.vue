@@ -3,110 +3,111 @@
     <div class="min-h-screen bg-gray-50">
         <StickyRibbon />
 
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 mt-12">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 mt-12">
             <!-- Back link -->
-            <a href="/" class="inline-flex items-center gap-2 text-gray-600 hover:text-green-600 transition-colors mb-6">
+            <a href="/" class="inline-flex items-center gap-2 text-gray-600 hover:text-green-600 transition-colors mb-4 sm:mb-6">
                 <ArrowLeftIcon class="w-4 h-4" />
                 হোমে ফিরুন
             </a>
 
-            <h1 class="text-3xl font-bold text-gray-900 mb-8">চেকআউট</h1>
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">চেকআউট</h1>
 
             <!-- Steps indicator -->
-            <div class="flex items-center justify-center mb-10">
+            <div class="flex items-center justify-center mb-8 sm:mb-10">
                 <div v-for="(step, i) in steps" :key="i" class="flex items-center">
                     <div :class="`flex items-center gap-2 ${i + 1 <= currentStep ? 'text-green-600' : 'text-gray-400'}`">
-                        <div :class="`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${i + 1 < currentStep ? 'bg-green-600 text-white' : i + 1 === currentStep ? 'bg-green-100 text-green-700 ring-2 ring-green-600' : 'bg-gray-200 text-gray-500'}`">
-                            <CheckIcon v-if="i + 1 < currentStep" class="w-4 h-4" />
+                        <div :class="`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold transition-all ${i + 1 < currentStep ? 'bg-green-600 text-white' : i + 1 === currentStep ? 'bg-green-100 text-green-700 ring-2 ring-green-600' : 'bg-gray-200 text-gray-500'}`">
+                            <CheckIcon v-if="i + 1 < currentStep" class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             <span v-else>{{ formatBangla(i + 1) }}</span>
                         </div>
-                        <span class="text-sm font-medium hidden sm:inline">{{ step }}</span>
+                        <span class="text-xs sm:text-sm font-medium hidden sm:inline">{{ step }}</span>
                     </div>
-                    <div v-if="i < steps.length - 1" :class="`w-12 sm:w-20 h-0.5 mx-2 ${i + 1 < currentStep ? 'bg-green-600' : 'bg-gray-200'}`"></div>
+                    <div v-if="i < steps.length - 1" :class="`w-8 sm:w-12 lg:w-20 h-0.5 mx-1.5 sm:mx-2 ${i + 1 < currentStep ? 'bg-green-600' : 'bg-gray-200'}`"></div>
                 </div>
             </div>
 
-            <div class="grid lg:grid-cols-5 gap-8">
+            <div class="grid lg:grid-cols-5 gap-6 lg:gap-8">
                 <!-- Order Form (3 cols) -->
                 <div class="lg:col-span-3 space-y-6">
                     <!-- Step 1: Select Products -->
-                    <div v-if="currentStep === 1" class="bg-white rounded-2xl shadow-sm p-6 sm:p-8 border border-gray-100 scroll-reveal">
-                        <h2 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <div v-if="currentStep === 1" class="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8 border border-gray-100">
+                        <h2 class="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
                             <ShoppingBagIcon class="w-5 h-5 text-green-600" />
                             পণ্য নির্বাচন
                         </h2>
 
-                        <div class="space-y-4 mb-6">
+                        <div class="space-y-3 sm:space-y-4 mb-6">
                             <div v-for="p in allProducts" :key="p.id"
-                                 :class="`flex items-center gap-4 p-4 rounded-xl border-2 transition-all cursor-pointer hover:border-green-300 ${selectedProducts.find(s => s.id === p.id) ? 'border-green-600 bg-green-50' : 'border-gray-200'}`"
+                                 :class="`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all cursor-pointer hover:border-green-300 ${selectedProducts.find(s => s.id === p.id) ? 'border-green-600 bg-green-50' : 'border-gray-200'}`"
                                  @click="toggleProduct(p)">
-                                <div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-green-100">
+                                <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden flex-shrink-0 bg-green-100">
                                     <img :src="p.image" :alt="p.name" class="w-full h-full object-cover" />
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <h4 class="font-bold text-gray-900 truncate">{{ p.name }}</h4>
-                                    <div class="flex items-baseline gap-2">
-                                        <span class="text-green-600 font-bold">{{ formatBangla(p.price) }}৳</span>
-                                        <span class="text-sm text-gray-400 line-through">{{ formatBangla(p.original_price) }}৳</span>
+                                    <h4 class="font-bold text-gray-900 text-sm sm:text-base truncate">{{ p.name }}</h4>
+                                    <div class="flex items-baseline gap-1.5 sm:gap-2">
+                                        <span class="text-green-600 font-bold text-sm sm:text-base">{{ formatBangla(p.price) }}৳</span>
+                                        <span class="text-xs sm:text-sm text-gray-400 line-through">{{ formatBangla(p.original_price) }}৳</span>
                                     </div>
                                 </div>
                                 <!-- Qty controls (only if selected) -->
-                                <div v-if="selectedProducts.find(s => s.id === p.id)" class="flex items-center gap-2">
+                                <div v-if="selectedProducts.find(s => s.id === p.id)" class="flex items-center gap-1.5 sm:gap-2">
                                     <button @click.stop="updateItemQty(p.id, -1)"
-                                            class="w-8 h-8 rounded-lg border-2 border-gray-200 hover:border-green-600 transition-colors flex items-center justify-center text-lg font-bold">-</button>
-                                    <span class="w-8 text-center font-bold">{{ selectedProducts.find(s => s.id === p.id)?.quantity }}</span>
+                                            class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg border-2 border-gray-200 hover:border-green-600 transition-colors flex items-center justify-center text-base sm:text-lg font-bold">-</button>
+                                    <span class="w-7 sm:w-8 text-center font-bold text-sm">{{ selectedProducts.find(s => s.id === p.id)?.quantity }}</span>
                                     <button @click.stop="updateItemQty(p.id, 1)"
-                                            class="w-8 h-8 rounded-lg border-2 border-gray-200 hover:border-green-600 transition-colors flex items-center justify-center text-lg font-bold">+</button>
+                                            class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg border-2 border-gray-200 hover:border-green-600 transition-colors flex items-center justify-center text-base sm:text-lg font-bold">+</button>
                                 </div>
-                                <div v-else class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                                    <PlusIcon class="w-4 h-4 text-gray-400" />
+                                <div v-else class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                                    <PlusIcon class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" />
                                 </div>
                             </div>
                         </div>
 
                         <button @click="nextStep" :disabled="selectedProducts.length === 0"
-                                :class="`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all ${selectedProducts.length > 0 ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`">
+                                :class="`w-full py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-2 transition-all ${selectedProducts.length > 0 ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`">
                             পরবর্তী ধাপ
-                            <ArrowRightIcon class="w-5 h-5" />
+                            <ArrowRightIcon class="w-4 h-4 sm:w-5 sm:h-5" />
                         </button>
                     </div>
 
                     <!-- Step 2: Delivery Info -->
-                    <div v-if="currentStep === 2" class="bg-white rounded-2xl shadow-sm p-6 sm:p-8 border border-gray-100 scroll-reveal">
-                        <h2 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <div v-if="currentStep === 2" class="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8 border border-gray-100">
+                        <h2 class="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
                             <TruckIcon class="w-5 h-5 text-green-600" />
                             ডেলিভারি তথ্য
                         </h2>
-                        <form @submit.prevent="nextStep" class="space-y-5">
+                        <form @submit.prevent="nextStep" class="space-y-4 sm:space-y-5">
                             <div class="grid sm:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">নাম *</label>
                                     <input v-model="form.name" type="text" required placeholder="আপনার নাম"
-                                           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" />
+                                           class="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-sm sm:text-base" />
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">ফোন *</label>
                                     <input v-model="form.phone" type="tel" required placeholder="০১XXXXXXXXX"
-                                           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" />
+                                           class="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-sm sm:text-base" />
                                 </div>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">ইমেইল</label>
                                 <input v-model="form.email" type="email" placeholder="example@email.com"
-                                       class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" />
+                                       class="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-sm sm:text-base" />
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">ঠিকানা *</label>
                                 <textarea v-model="form.address" required rows="3" placeholder="বাড়ি নং, রোড, এলাকা"
-                                          class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors resize-none"></textarea>
+                                          class="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors resize-none text-sm sm:text-base"></textarea>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">শহর/এলাকা *</label>
                                 <select v-model="form.city" required
-                                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                                        class="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-sm sm:text-base">
                                     <option value="">-- শহর নির্বাচন করুন --</option>
+                                    <option value="dhaka">ঢাকা (ডেলিভারি: ৬০৳)</option>
                                     <option value="chittagong">চট্টগ্রাম (ডেলিভারি: ৬০৳)</option>
-                                    <option value="outside">চট্টগ্রামের বাইরে (ডেলিভারি: ১২০৳)</option>
+                                    <option value="outside">ঢাকা/চট্টগ্রামের বাইরে (ডেলিভারি: ১২০৳)</option>
                                 </select>
                                 <div v-if="form.city" class="mt-2 flex items-center gap-2 text-sm" :class="deliveryCharge === 60 ? 'text-green-600' : 'text-amber-600'">
                                     <MapPinIcon class="w-4 h-4" />
@@ -116,25 +117,25 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">বিশেষ অনুরোধ</label>
                                 <textarea v-model="form.notes" rows="2" placeholder="কোনো বিশেষ অনুরোধ থাকলে লিখুন"
-                                          class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors resize-none"></textarea>
+                                          class="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors resize-none text-sm sm:text-base"></textarea>
                             </div>
-                            <div class="flex gap-3">
+                            <div class="flex gap-2 sm:gap-3">
                                 <button type="button" @click="currentStep = 1"
-                                        class="px-6 py-4 rounded-xl border-2 border-gray-200 text-gray-600 hover:border-green-600 hover:text-green-600 font-bold transition-colors">
+                                        class="px-4 sm:px-6 py-2.5 sm:py-4 rounded-xl border-2 border-gray-200 text-gray-600 hover:border-green-600 hover:text-green-600 font-bold text-sm sm:text-base transition-colors">
                                     পূর্ববর্তী
                                 </button>
                                 <button type="submit"
-                                        class="flex-1 bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 shadow-lg transition-all">
+                                        class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 sm:py-4 rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-2 shadow-lg transition-all">
                                     পরবর্তী ধাপ
-                                    <ArrowRightIcon class="w-5 h-5" />
+                                    <ArrowRightIcon class="w-4 h-4 sm:w-5 sm:h-5" />
                                 </button>
                             </div>
                         </form>
                     </div>
 
                     <!-- Step 3: Payment & Confirm -->
-                    <div v-if="currentStep === 3" class="bg-white rounded-2xl shadow-sm p-6 sm:p-8 border border-gray-100 scroll-reveal">
-                        <h2 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <div v-if="currentStep === 3" class="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8 border border-gray-100">
+                        <h2 class="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
                             <CreditCardIcon class="w-5 h-5 text-green-600" />
                             পেমেন্ট ও নিশ্চিতকরণ
                         </h2>
@@ -143,40 +144,40 @@
                         <div class="space-y-3 mb-6">
                             <h3 class="text-sm font-medium text-gray-700 mb-3">পেমেন্ট পদ্ধতি নির্বাচন করুন</h3>
                             <label v-for="method in paymentMethods" :key="method.id"
-                                   :class="`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${form.payment_method === method.id ? 'border-green-600 bg-green-50' : 'border-gray-200 hover:border-green-300'}`">
+                                   :class="`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 cursor-pointer transition-all ${form.payment_method === method.id ? 'border-green-600 bg-green-50' : 'border-gray-200 hover:border-green-300'}`">
                                 <input type="radio" v-model="form.payment_method" :value="method.id" class="sr-only" />
-                                <div :class="`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${form.payment_method === method.id ? 'bg-green-600' : 'bg-gray-100'}`">
-                                    <component :is="method.icon" :class="`w-5 h-5 ${form.payment_method === method.id ? 'text-white' : 'text-gray-500'}`" />
+                                <div :class="`w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${form.payment_method === method.id ? 'bg-green-600' : 'bg-gray-100'}`">
+                                    <component :is="method.icon" :class="`w-4 h-4 sm:w-5 sm:h-5 ${form.payment_method === method.id ? 'text-white' : 'text-gray-500'}`" />
                                 </div>
                                 <div class="flex-1">
-                                    <p class="font-bold text-gray-900">{{ method.name }}</p>
-                                    <p class="text-sm text-gray-500">{{ method.desc }}</p>
+                                    <p class="font-bold text-gray-900 text-sm sm:text-base">{{ method.name }}</p>
+                                    <p class="text-xs sm:text-sm text-gray-500">{{ method.desc }}</p>
                                 </div>
-                                <div :class="`w-5 h-5 rounded-full border-2 flex items-center justify-center ${form.payment_method === method.id ? 'border-green-600' : 'border-gray-300'}`">
-                                    <div v-if="form.payment_method === method.id" class="w-3 h-3 bg-green-600 rounded-full"></div>
+                                <div :class="`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center ${form.payment_method === method.id ? 'border-green-600' : 'border-gray-300'}`">
+                                    <div v-if="form.payment_method === method.id" class="w-2 h-2 sm:w-3 sm:h-3 bg-green-600 rounded-full"></div>
                                 </div>
                             </label>
                         </div>
 
                         <!-- Review delivery info -->
-                        <div class="bg-gray-50 rounded-xl p-4 mb-6">
-                            <h4 class="font-bold text-gray-700 text-sm mb-2">ডেলিভারি তথ্য</h4>
-                            <p class="text-gray-900">{{ form.name }} — {{ form.phone }}</p>
-                            <p class="text-gray-600 text-sm">{{ form.address }}</p>
-                            <p class="text-sm text-gray-500 mt-1">
-                                {{ form.city === 'chittagong' ? 'চট্টগ্রাম' : 'চট্টগ্রামের বাইরে' }}
+                        <div class="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-6">
+                            <h4 class="font-bold text-gray-700 text-xs sm:text-sm mb-1.5 sm:mb-2">ডেলিভারি তথ্য</h4>
+                            <p class="text-gray-900 text-sm sm:text-base">{{ form.name }} — {{ form.phone }}</p>
+                            <p class="text-gray-600 text-xs sm:text-sm">{{ form.address }}</p>
+                            <p class="text-xs sm:text-sm text-gray-500 mt-1">
+                                {{ form.city === 'dhaka' ? 'ঢাকা' : form.city === 'chittagong' ? 'চট্টগ্রাম' : 'বাইরে' }}
                                 · ডেলিভারি: {{ formatBangla(deliveryCharge) }}৳
                             </p>
                         </div>
 
-                        <div class="flex gap-3">
+                        <div class="flex gap-2 sm:gap-3">
                             <button type="button" @click="currentStep = 2"
-                                    class="px-6 py-4 rounded-xl border-2 border-gray-200 text-gray-600 hover:border-green-600 hover:text-green-600 font-bold transition-colors">
+                                    class="px-4 sm:px-6 py-2.5 sm:py-4 rounded-xl border-2 border-gray-200 text-gray-600 hover:border-green-600 hover:text-green-600 font-bold text-sm sm:text-base transition-colors">
                                 পূর্ববর্তী
                             </button>
                             <button @click="submitOrder"
-                                    class="flex-1 bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
-                                <CheckCircleIcon class="w-5 h-5" />
+                                    class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 sm:py-4 rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
+                                <CheckCircleIcon class="w-4 h-4 sm:w-5 sm:h-5" />
                                 অর্ডার নিশ্চিত করুন
                             </button>
                         </div>
@@ -185,7 +186,46 @@
 
                 <!-- Order Summary (2 cols) -->
                 <div class="lg:col-span-2">
-                    <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 sticky top-24">
+                    <!-- Mobile: show summary above form -->
+                    <div class="lg:hidden mb-6">
+                        <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 border border-gray-100">
+                            <h2 class="text-base sm:text-lg font-bold text-gray-900 mb-4">অর্ডার সারাংশ</h2>
+                            <div v-if="selectedProducts.length > 0" class="space-y-3 mb-4">
+                                <div v-for="item in selectedProducts" :key="item.id" class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-green-100">
+                                        <img :src="item.image" :alt="item.name" class="w-full h-full object-cover" />
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-semibold text-gray-900 text-sm truncate">{{ item.name }}</p>
+                                        <p class="text-xs text-gray-500">{{ formatBangla(item.quantity) }} × {{ formatBangla(item.price) }}৳</p>
+                                    </div>
+                                    <span class="font-bold text-green-600 text-sm">{{ formatBangla(item.price * item.quantity) }}৳</span>
+                                </div>
+                            </div>
+                            <!-- Price breakdown mobile -->
+                            <div v-if="selectedProducts.length > 0" class="space-y-2 pt-3 border-t border-gray-200">
+                                <div class="flex justify-between text-sm text-gray-600">
+                                    <span>সাবটোটাল</span>
+                                    <span>{{ formatBangla(subtotal) }}৳</span>
+                                </div>
+                                <div class="flex justify-between text-sm text-green-600 font-medium">
+                                    <span>প্রথম অর্ডার ছাড় (২০%)</span>
+                                    <span>-{{ formatBangla(discount) }}৳</span>
+                                </div>
+                                <div class="flex justify-between text-sm text-gray-600">
+                                    <span>ডেলিভারি চার্জ</span>
+                                    <span>{{ form.city ? formatBangla(deliveryCharge) + '৳' : '—' }}</span>
+                                </div>
+                                <div class="flex justify-between font-bold text-lg pt-2 border-t border-gray-200">
+                                    <span>মোট</span>
+                                    <span class="text-green-600">{{ formatBangla(total) }}৳</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Desktop: sticky sidebar -->
+                    <div class="hidden lg:block bg-white rounded-2xl shadow-sm p-6 border border-gray-100 sticky top-24">
                         <h2 class="text-lg font-bold text-gray-900 mb-6">অর্ডার সারাংশ</h2>
 
                         <!-- Items -->
@@ -259,7 +299,6 @@ import {
     ArrowLeftIcon, ArrowRightIcon, CheckIcon, ShoppingBagIcon,
     TruckIcon, CreditCardIcon, BanknotesIcon, CheckCircleIcon,
     ShieldCheckIcon, ArrowPathIcon, MapPinIcon, PlusIcon,
-    DevicePhoneMobileIcon,
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -281,18 +320,6 @@ const paymentMethods = [
         name: 'ক্যাশ অন ডেলিভারি',
         desc: 'পণ্য পেয়ে ডেলিভারি ম্যানকে পেমেন্ট করুন',
         icon: BanknotesIcon,
-    },
-    {
-        id: 'bkash',
-        name: 'বিকাশ',
-        desc: 'বিকাশ নম্বরে সেন্ড মানি করুন',
-        icon: DevicePhoneMobileIcon,
-    },
-    {
-        id: 'nagad',
-        name: 'নগদ',
-        desc: 'নগদ নম্বরে সেন্ড মানি করুন',
-        icon: DevicePhoneMobileIcon,
     },
 ];
 
@@ -327,7 +354,7 @@ function formatBangla(n) {
 
 const subtotal = computed(() => selectedProducts.value.reduce((sum, item) => sum + item.price * item.quantity, 0));
 const discount = computed(() => Math.round(subtotal.value * 0.20));
-const deliveryCharge = computed(() => form.city === 'chittagong' ? 60 : 120);
+const deliveryCharge = computed(() => ['dhaka', 'chittagong'].includes(form.city) ? 60 : 120);
 const total = computed(() => subtotal.value - discount.value + (form.city ? deliveryCharge.value : 0));
 
 function submitOrder() {

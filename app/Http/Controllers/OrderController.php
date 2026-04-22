@@ -40,8 +40,8 @@ class OrderController extends Controller
             'phone' => 'required|string|max:20',
             'email' => 'nullable|email|max:255',
             'address' => 'required|string',
-            'city' => 'required|string|in:chittagong,outside',
-            'payment_method' => 'required|string|in:cod,bkash,nagad',
+            'city' => 'required|string|in:dhaka,chittagong,outside',
+            'payment_method' => 'required|string|in:cod',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|string',
             'items.*.quantity' => 'required|integer|min:1',
@@ -50,7 +50,7 @@ class OrderController extends Controller
             'notes' => 'nullable|string|max:500',
         ]);
 
-        $deliveryCharge = $validated['city'] === 'chittagong' ? 60 : 120;
+        $deliveryCharge = in_array($validated['city'], ['dhaka', 'chittagong']) ? 60 : 120;
 
         $subtotal = collect($validated['items'])->sum(function ($item) {
             return $item['unit_price'] * $item['quantity'];

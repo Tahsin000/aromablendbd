@@ -5,7 +5,9 @@
       "Bash(npm install *)",
       "Bash(npm run *)",
       "Bash(node -e \"const m = require\\('@inertiajs/vue3'\\); console.log\\(Object.keys\\(m\\)\\)\")",
-      "Bash(php artisan *)"
+      "Bash(php artisan *)",
+      "Bash(npx vite *)",
+      "Bash(curl -s http://localhost:8000)"
     ]
   }
 }

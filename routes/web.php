@@ -39,7 +39,7 @@ Route::get('/product/{productId}', [LandingPageController::class, 'product'])->n
 
 // Checkout routes
 Route::get('/checkout', [OrderController::class, 'create'])->name('checkout');
-Route::post('/checkout', [OrderController::class, 'store'])->name('checkout.store');
+Route::post('/checkout', [OrderController::class, 'store'])->name('checkout.store')->middleware('throttle:10,1');
 
 Route::prefix('admin')->name('admin.')->group(function () {
 

@@ -23,9 +23,16 @@
                     <!-- Main Image with zoom -->
                     <div class="aspect-square bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl overflow-hidden shadow-lg relative group cursor-zoom-in"
                          @mousemove="onZoomMove" @mouseleave="zoomLevel = 1" @mouseenter="zoomLevel = 2">
-                        <img :src="product.images[activeImage]" :alt="product.name"
+                        <img v-if="product.images && product.images[activeImage]" :src="product.images[activeImage]" :alt="product.name"
                              class="w-full h-full object-cover transition-transform duration-300"
                              :style="{ transform: `scale(${zoomLevel})`, transformOrigin: `${zoomX}% ${zoomY}%` }" />
+                        <!-- Fallback: default icon if image missing -->
+                        <div v-else class="w-full h-full flex flex-col items-center justify-center text-green-300">
+                            <svg class="w-32 h-32 sm:w-40 sm:h-40 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="0.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-2.25-1.313M21 7.5v2.25m0-2.25l-2.25 1.313M3 7.5l2.25-1.313M3 7.5l2.25 1.313M3 7.5v2.25m9 3l2.25-1.313m0 0l-2.25-1.313m0 0l-2.25 1.313m0 0l2.25 1.313M12 12.75l-2.25-1.313M12 12.75l-2.25-1.313m0 0l-2.25 1.313m0 0l2.25 1.313M12 12.75l2.25-1.313M12 12.75l2.25-1.313m0 0l2.25 1.313m0 0l-2.25 1.313M9 12.75l-2.25-1.313M9 12.75l-2.25-1.313m0 0l-2.25 1.313m0 0l2.25 1.313M9 12.75l2.25-1.313M9 12.75l2.25-1.313m0 0l2.25 1.313m0 0l-2.25 1.313M15 12.75l-2.25-1.313M15 12.75l-2.25-1.313m0 0l-2.25 1.313m0 0l2.25 1.313M15 12.75l2.25-1.313M15 12.75l2.25-1.313m0 0l2.25 1.313m0 0l-2.25 1.313" />
+                            </svg>
+                            <p class="text-sm text-green-400 mt-4 font-medium">ছবি আপলোড করা হয়নি</p>
+                        </div>
                         <!-- Discount overlay -->
                         <div class="absolute top-4 left-4 bg-red-500 text-white text-lg font-bold px-4 py-2 rounded-xl shadow-lg">
                             {{ formatBangla(discountPercent) }}% ছাড়
@@ -38,10 +45,15 @@
                     </div>
                     <!-- Thumbnails -->
                     <div class="flex gap-3">
-                        <div v-for="(img, i) in product.images" :key="i"
-                             @click="activeImage = i"
-                             :class="`aspect-video rounded-xl overflow-hidden cursor-pointer border-3 transition-all duration-300 ${activeImage === i ? 'border-green-600 shadow-md scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`">
-                            <img :src="img" class="w-full h-full object-cover" />
+                        <template v-if="product.images && product.images.length > 0">
+                            <div v-for="(img, i) in product.images" :key="i"
+                                 @click="activeImage = i"
+                                 :class="`aspect-video rounded-xl overflow-hidden cursor-pointer border-3 transition-all duration-300 ${activeImage === i ? 'border-green-600 shadow-md scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`">
+                                <img :src="img" class="w-full h-full object-cover" />
+                            </div>
+                        </template>
+                        <div v-else class="w-full text-center py-4 text-gray-400">
+                            <p class="text-sm">কোনো ছবি নেই</p>
                         </div>
                     </div>
                 </div>
@@ -287,13 +299,7 @@ function updateCountdown() {
 }
 
 function goToCheckout() {
-    router.post('/checkout', {
-        items: [{
-            product_id: props.product.id,
-            quantity: quantity.value,
-            unit_price: props.product.price,
-        }]
-    }, { preserveScroll: false });
+    window.location.href = `/checkout?product_id=${props.product.id}&quantity=${quantity.value}`;
 }
 
 function goToProduct(id) {
