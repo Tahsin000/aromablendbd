@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EcommerceController;
 use App\Http\Controllers\Admin\ProjectController;
@@ -65,9 +66,15 @@ Route::prefix('admin')->name('admin.')->middleware('admin.auth')->group(function
         Route::get('/products/details',  [EcommerceController::class, 'productDetails'])->name('product-details');
         Route::get('/products/add',      [EcommerceController::class, 'productAdd'])->name('product-add');
         Route::get('/categories',        [EcommerceController::class, 'categories'])->name('categories');
-        Route::get('/orders',            [EcommerceController::class, 'orders'])->name('orders');
-        Route::get('/orders/details',    [EcommerceController::class, 'orderDetails'])->name('order-details');
-        Route::get('/orders/add',        [EcommerceController::class, 'orderAdd'])->name('order-add');
+        // ─── Orders CRUD ────────────────────────────────────────────────────────
+        Route::get('/orders',            [AdminOrderController::class, 'index'])->name('orders');
+        Route::get('/orders/create',     [AdminOrderController::class, 'create'])->name('order-create');
+        Route::post('/orders',           [AdminOrderController::class, 'store'])->name('order-store');
+        Route::get('/orders/{order}',    [AdminOrderController::class, 'show'])->name('order-show');
+        Route::get('/orders/{order}/edit', [AdminOrderController::class, 'edit'])->name('order-edit');
+        Route::put('/orders/{order}',    [AdminOrderController::class, 'update'])->name('order-update');
+        Route::delete('/orders/{order}', [AdminOrderController::class, 'destroy'])->name('order-delete');
+        Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('order-update-status');
         Route::get('/customers',         [EcommerceController::class, 'customers'])->name('customers');
         Route::get('/cart',              [EcommerceController::class, 'cart'])->name('cart');
         Route::get('/checkout',          [EcommerceController::class, 'checkout'])->name('checkout');

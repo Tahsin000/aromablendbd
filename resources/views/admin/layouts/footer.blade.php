@@ -7,7 +7,7 @@
                     document.write(new Date().getFullYear())
                 </script>
                 © Hash - By <span
-                    class="fw-bold text-decoration-underline text-uppercase text-reset fs-12">Coderthemes</span>
+                    class="fw-bold text-decoration-underline text-uppercase text-reset fs-12">Hassh</span>
             </div>
             <div class="col-md-6">
                 <div class="d-none d-md-flex justify-content-end gap-3">
