@@ -162,7 +162,7 @@
                         <!-- Review delivery info -->
                         <div class="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-6">
                             <h4 class="font-bold text-gray-700 text-xs sm:text-sm mb-1.5 sm:mb-2">ডেলিভারি তথ্য</h4>
-                            <p class="text-gray-900 text-sm sm:text-base">{{ form.name }} — {{ form.phone }}</p>
+                            <p class="text-gray-900 text-sm sm:text-base">{{ form.name }} - {{ form.phone }}</p>
                             <p class="text-gray-600 text-xs sm:text-sm">{{ form.address }}</p>
                             <p class="text-xs sm:text-sm text-gray-500 mt-1">
                                 {{ form.city === 'dhaka' ? 'ঢাকা' : form.city === 'chittagong' ? 'চট্টগ্রাম' : 'বাইরে' }}
@@ -214,7 +214,7 @@
                                 </div>
                                 <div class="flex justify-between text-sm text-gray-600">
                                     <span>ডেলিভারি চার্জ</span>
-                                    <span>{{ form.city ? formatBangla(deliveryCharge) + '৳' : '—' }}</span>
+                                    <span>{{ form.city ? formatBangla(deliveryCharge) + '৳' : '-' }}</span>
                                 </div>
                                 <div class="flex justify-between font-bold text-lg pt-2 border-t border-gray-200">
                                     <span>মোট</span>
@@ -258,7 +258,7 @@
                             </div>
                             <div class="flex justify-between text-sm text-gray-600">
                                 <span>ডেলিভারি চার্জ</span>
-                                <span>{{ form.city ? formatBangla(deliveryCharge) + '৳' : '—' }}</span>
+                                <span>{{ form.city ? formatBangla(deliveryCharge) + '৳' : '-' }}</span>
                             </div>
                             <div class="flex justify-between font-bold text-xl pt-3 border-t border-gray-200">
                                 <span>মোট</span>

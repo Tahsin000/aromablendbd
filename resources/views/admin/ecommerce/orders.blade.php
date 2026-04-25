@@ -167,7 +167,7 @@ document.getElementById('deleteOrderModal').addEventListener('show.bs.modal', fu
     var button = e.relatedTarget;
     var orderId = button.getAttribute('data-order-id');
     var orderName = button.getAttribute('data-order-name');
-    document.getElementById('delete-order-ref').textContent = '#' + orderId + ' — ' + orderName;
+    document.getElementById('delete-order-ref').textContent = '#' + orderId + ' - ' + orderName;
     document.getElementById('delete-order-form').action = '/admin/ecommerce/orders/' + orderId;
 });
 </script>

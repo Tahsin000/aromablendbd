@@ -6,7 +6,7 @@
         <ProductOverview :products="products" />
         <OfferSection />
         <ProductGallery />
-        <ReviewCarousel />
+        <ReviewCarousel :reviews="reviews" />
         <FooterSection />
     </div>
 </template>
@@ -23,6 +23,7 @@ import FooterSection from '../Components/Landing/FooterSection.vue';
 
 defineProps({
     products: { type: Object, default: () => ({}) },
+    reviews: { type: Array, default: () => [] },
 });
 
 function goToProduct(id) {

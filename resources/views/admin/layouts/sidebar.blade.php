@@ -90,6 +90,14 @@
                     </a>
                 </li>
 
+                <!-- Reviews -->
+                <li class="side-nav-item">
+                    <a href="{{ route('admin.ecommerce.reviews') }}" class="side-nav-link {{ request()->routeIs('admin.ecommerce.reviews') ? 'active' : '' }}">
+                        <span class="menu-icon"><i class="ti ti-star"></i></span>
+                        <span class="menu-text">Reviews</span>
+                    </a>
+                </li>
+
                 <!-- Settings -->
                 <li class="side-nav-item">
                     <a href="{{ route('admin.ecommerce.settings') }}" class="side-nav-link {{ request()->routeIs('admin.ecommerce.settings') ? 'active' : '' }}">

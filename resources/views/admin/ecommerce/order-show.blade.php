@@ -38,7 +38,7 @@
                             <table class="table table-borderless table-sm mb-0">
                                 <tr><td class="text-muted" style="width:120px">Name</td><td class="fw-semibold">{{ $order->name }}</td></tr>
                                 <tr><td class="text-muted">Phone</td><td>{{ $order->phone }}</td></tr>
-                                <tr><td class="text-muted">Email</td><td>{{ $order->email ?? '—' }}</td></tr>
+                                <tr><td class="text-muted">Email</td><td>{{ $order->email ?? '-' }}</td></tr>
                             </table>
                         </div>
                         <div class="col-md-6">

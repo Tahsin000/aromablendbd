@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Admin\AdminOrderController;
+use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EcommerceController;
 use App\Http\Controllers\Admin\ProjectController;
@@ -81,7 +82,14 @@ Route::prefix('admin')->name('admin.')->middleware('admin.auth')->group(function
         Route::get('/sellers',           [EcommerceController::class, 'sellers'])->name('sellers');
         Route::get('/sellers/details',   [EcommerceController::class, 'sellerDetails'])->name('seller-details');
         Route::get('/refunds',           [EcommerceController::class, 'refunds'])->name('refunds');
-        Route::get('/reviews',           [EcommerceController::class, 'reviews'])->name('reviews');
+        // ─── Reviews CRUD ───────────────────────────────────────────────────────
+        Route::get('/reviews',                [ReviewController::class, 'index'])->name('reviews');
+        Route::get('/reviews/create',         [ReviewController::class, 'create'])->name('review-create');
+        Route::post('/reviews',               [ReviewController::class, 'store'])->name('review-store');
+        Route::get('/reviews/{review}/edit',  [ReviewController::class, 'edit'])->name('review-edit');
+        Route::put('/reviews/{review}',       [ReviewController::class, 'update'])->name('review-update');
+        Route::delete('/reviews/{review}',    [ReviewController::class, 'destroy'])->name('review-delete');
+        Route::patch('/reviews/{review}/toggle', [ReviewController::class, 'toggleStatus'])->name('review-toggle');
         Route::get('/warehouse',         [EcommerceController::class, 'warehouse'])->name('warehouse');
         Route::get('/stocks',            [EcommerceController::class, 'stocks'])->name('product-stocks');
         Route::get('/purchased-orders',  [EcommerceController::class, 'purchasedOrders'])->name('purchased-orders');
