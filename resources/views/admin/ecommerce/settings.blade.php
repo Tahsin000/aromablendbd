@@ -270,6 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     function gatherFields(form) {
         const fields = {};
+        const section = form.querySelector('[name="section"]')?.value || '';
 
         // 1. Gather scalar fields (not inside array items)
         form.querySelectorAll(':scope [data-field]').forEach(function(input) {
@@ -278,15 +279,25 @@ document.addEventListener('DOMContentLoaded', function() {
             const key = input.dataset.field;
             const val = input.value;
 
-            // Timer-related fields → nested object
-            if (key.startsWith('timer_')) {
+            // Ribbon section: timer fields → nested object
+            if (section === 'ribbon' && key.startsWith('ribbon_timer_')) {
                 if (!fields.timer) fields.timer = {};
-                const timerKey = key.replace('timer_', '');
-                if (key === 'timer_enabled') {
+                const timerKey = key.replace('ribbon_timer_', '');
+                if (timerKey === 'enabled') {
                     fields.timer.enabled = val === '1';
-                } else {
-                    fields.timer[timerKey] = val;
+                } else if (timerKey === 'label') {
+                    fields.timer.countdown_label = val;
+                } else if (timerKey === 'start') {
+                    fields.timer.start_date = val;
+                } else if (timerKey === 'end') {
+                    fields.timer.end_date = val;
                 }
+                return;
+            }
+
+            // Offer section: flat timer_enabled key
+            if (key === 'timer_enabled') {
+                fields.timer_enabled = val === '1' ? 1 : 0;
                 return;
             }
 

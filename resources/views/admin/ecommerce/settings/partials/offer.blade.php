@@ -43,6 +43,23 @@
     </div>
 
     <hr class="my-4">
+    <h6 class="mb-3">Countdown Timer</h6>
+
+    <div class="form-check form-switch mb-3">
+        <input class="form-check-input" type="checkbox" id="offer-timer-enabled"
+            {{ ($data['offer']['timer_enabled'] ?? true) ? 'checked' : '' }}>
+        <label class="form-check-label" for="offer-timer-enabled">Enable Countdown Timer</label>
+    </div>
+
+    <input type="hidden" data-field="timer_enabled" value="{{ ($data['offer']['timer_enabled'] ?? true) ? '1' : '0' }}">
+
+    <div class="mb-3">
+        <label class="form-label">End Date</label>
+        <input type="date" class="form-control" data-field="end_date" value="{{ $data['offer']['end_date'] ?? '' }}" min="{{ date('Y-m-d') }}" />
+        <div class="form-text">Leave empty to count down to end of today. Timer runs until this date at 23:59:59.</div>
+    </div>
+
+    <hr class="my-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h6 class="m-0">Offer Stats</h6>
         <button type="button" class="btn btn-sm btn-outline-primary btn-add-item" data-group="stats">
@@ -82,3 +99,13 @@
         </button>
     </div>
 </form>
+
+<script>
+document.getElementById('offer-status').addEventListener('change', function() {
+    this.closest('form').querySelector('[data-field="status"]').value = this.checked ? '1' : '0';
+    this.parentElement.querySelector('label.form-check-label').textContent = this.checked ? 'Enabled' : 'Disabled';
+});
+document.getElementById('offer-timer-enabled').addEventListener('change', function() {
+    this.closest('form').querySelector('[data-field="timer_enabled"]').value = this.checked ? '1' : '0';
+});
+</script>

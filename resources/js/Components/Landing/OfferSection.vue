@@ -20,7 +20,7 @@
             </p>
 
             <!-- Countdown Timer -->
-            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-8 inline-block border border-white/20">
+            <div v-if="showTimer" class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-8 inline-block border border-white/20">
                 <p class="text-green-200 text-sm mb-4">{{ c.countdown_label }}</p>
                 <div class="flex gap-4 justify-center text-white">
                     <div class="bg-white/20 rounded-xl p-3 min-w-[70px]">
@@ -70,18 +70,20 @@ const c = computed(() => ({
     title_highlight: '২০% ছাড়',
     description: 'অর্গানিক চা ট্রায়াল করুন বিশেষ মূল্যে। প্রতিটি পণ্যে ফ্রি ডেলিভারি এবং ৭ দিনের মানি-ব্যাক গ্যারান্টি।',
     countdown_label: 'অফার শেষ হতে বাকি',
-    stat1_value: '৫০০',
-    stat1_label: 'সর্বনিম্ন অর্ডার',
-    stat2_value: 'ফ্রি',
-    stat2_label: 'ডেলিভারি',
-    stat3_value: '৭ দিন',
-    stat3_label: 'রিটার্ন পলিসি',
+    timer_enabled: true,
+    end_date: '',
+    stats: [],
     cta_text: 'এখনই অর্ডার করুন',
     ...props.content,
 }));
 
 const countdown = ref({ hours: '০০', minutes: '০০', seconds: '০০' });
 let timer = null;
+
+const showTimer = computed(() => {
+    const t = c.value.timer_enabled;
+    return t === true || t === 'true' || t === 1 || t === '1';
+});
 
 function toBangla(n) {
     const b = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
@@ -90,9 +92,10 @@ function toBangla(n) {
 
 function updateCountdown() {
     const now = new Date();
-    const end = new Date(now);
-    end.setHours(23, 59, 59, 0);
-    const diff = end - now;
+    const end = c.value.end_date
+        ? new Date(c.value.end_date + 'T23:59:59')
+        : (() => { const d = new Date(now); d.setHours(23, 59, 59, 0); return d; })();
+    const diff = Math.max(0, end - now);
 
     const h = Math.floor(diff / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);

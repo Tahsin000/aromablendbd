@@ -77,26 +77,26 @@
     <h6 class="mb-3">Timer Settings</h6>
 
     <div class="form-check form-switch mb-3">
-        <input class="form-check-input" type="checkbox" id="timer-enabled"
+        <input class="form-check-input" type="checkbox" id="ribbon-timer-enabled"
             {{ ($data['ribbon']['timer']['enabled'] ?? true) ? 'checked' : '' }}>
-        <label class="form-check-label" for="timer-enabled">Show Countdown Timer</label>
+        <label class="form-check-label" for="ribbon-timer-enabled">Show Countdown Timer</label>
     </div>
 
-    <input type="hidden" data-field="timer_enabled" value="{{ ($data['ribbon']['timer']['enabled'] ?? true) ? '1' : '0' }}">
+    <input type="hidden" data-field="ribbon_timer_enabled" value="{{ ($data['ribbon']['timer']['enabled'] ?? true) ? '1' : '0' }}">
 
     <div class="mb-3">
         <label class="form-label">Timer Label</label>
-        <input type="text" class="form-control" data-field="timer_label" value="{{ $data['ribbon']['timer']['countdown_label'] ?? '' }}" placeholder="অফার শেষ হতে বাকি" />
+        <input type="text" class="form-control" data-field="ribbon_timer_label" value="{{ $data['ribbon']['timer']['countdown_label'] ?? '' }}" placeholder="অফার শেষ হতে বাকি" />
     </div>
 
     <div class="row">
         <div class="col-md-6 mb-3">
             <label class="form-label">Start Date</label>
-            <input type="date" class="form-control" data-field="timer_start" value="{{ $data['ribbon']['timer']['start_date'] ?? '' }}" min="{{ date('Y-m-d') }}" />
+            <input type="date" class="form-control" data-field="ribbon_timer_start" value="{{ $data['ribbon']['timer']['start_date'] ?? '' }}" min="{{ date('Y-m-d') }}" />
         </div>
         <div class="col-md-6 mb-3">
             <label class="form-label">End Date</label>
-            <input type="date" class="form-control" data-field="timer_end" value="{{ $data['ribbon']['timer']['end_date'] ?? '' }}" min="{{ date('Y-m-d') }}" />
+            <input type="date" class="form-control" data-field="ribbon_timer_end" value="{{ $data['ribbon']['timer']['end_date'] ?? '' }}" min="{{ date('Y-m-d') }}" />
         </div>
     </div>
 
@@ -109,10 +109,12 @@
 
 <script>
 document.getElementById('ribbon-status').addEventListener('change', function() {
-    this.nextElementSibling.value = this.checked ? '1' : '0';
+    const hidden = this.closest('form').querySelector('[data-field="status"]');
+    if (hidden) hidden.value = this.checked ? '1' : '0';
     this.parentElement.querySelector('label.form-check-label').textContent = this.checked ? 'Enabled' : 'Disabled';
 });
-document.getElementById('timer-enabled').addEventListener('change', function() {
-    this.nextElementSibling.value = this.checked ? '1' : '0';
+document.getElementById('ribbon-timer-enabled').addEventListener('change', function() {
+    const hidden = this.closest('form').querySelector('[data-field="ribbon_timer_enabled"]');
+    if (hidden) hidden.value = this.checked ? '1' : '0';
 });
 </script>

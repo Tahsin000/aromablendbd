@@ -49,6 +49,8 @@ class LandingContentSeeder extends Seeder
                 'title_highlight' => '২০% ছাড়',
                 'description' => 'অর্গানিক চা ট্রায়াল করুন বিশেষ মূল্যে।',
                 'countdown_label' => 'অফার শেষ হতে বাকি',
+                'timer_enabled' => true,
+                'end_date' => date('Y-m-d', strtotime('+7 days')),
                 'cta_text' => 'এখনই অর্ডার করুন',
                 'stats' => [
                     ['value' => '৫০০', 'label' => 'সর্বনিম্ন অর্ডার'],

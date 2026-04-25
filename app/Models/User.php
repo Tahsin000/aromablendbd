@@ -45,7 +45,7 @@ class User extends Authenticatable
         }
 
         // Merge array fields (stats, features, steps, quick_links, emails) - replace entirely
-        foreach (['stats', 'features', 'steps', 'quick_links', 'emails', 'texts'] as $arrayKey) {
+        foreach (['stats', 'features', 'steps', 'quick_links', 'emails', 'texts', 'timer'] as $arrayKey) {
             if (isset($data[$arrayKey]) && is_array($data[$arrayKey])) {
                 $sectionData[$arrayKey] = $data[$arrayKey];
             }
