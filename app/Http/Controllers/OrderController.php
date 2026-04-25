@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendNewOrderNotification;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -90,7 +92,24 @@ class OrderController extends Controller
             ]);
         }
 
+        $this->dispatchOrderNotifications($order);
+
         return redirect()->route('landing')->with('success', 'অর্ডার সফলভাবে সম্পন্ন হয়েছে!');
+    }
+
+    private function dispatchOrderNotifications(Order $order): void
+    {
+        $mailSettings = (User::getSiteSettings())['mail'] ?? null;
+        if (!$mailSettings || ($mailSettings['status'] ?? false) !== true) {
+            return;
+        }
+
+        $emails = $mailSettings['emails'] ?? [];
+        foreach ($emails as $emailConfig) {
+            if (!empty($emailConfig['email']) && ($emailConfig['active'] ?? false) === true) {
+                SendNewOrderNotification::dispatch($order, $emailConfig['email']);
+            }
+        }
     }
 
     private function getProducts(): array

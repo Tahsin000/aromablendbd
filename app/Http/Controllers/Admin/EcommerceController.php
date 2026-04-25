@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class EcommerceController extends Controller
 {
@@ -28,5 +31,49 @@ class EcommerceController extends Controller
     public function sales()          { return view('admin.ecommerce.sales'); }
     public function attributes()     { return view('admin.ecommerce.attributes'); }
     public function discountEdit()   { return view('admin.ecommerce.discount-edit'); }
-    public function settings()       { return view('admin.ecommerce.settings'); }
+
+    public function settings()
+    {
+        $sections = [
+            'hero' => 'Hero Section',
+            'product_overview' => 'Product Overview',
+            'offer' => 'Offer Section',
+            'product_gallery' => 'Product Gallery',
+            'review' => 'Review Section',
+            'footer' => 'Footer',
+            'mail' => 'Mail Notifications',
+            'ribbon' => 'Ribbon / Promotion',
+        ];
+
+        $data = User::getSiteSettings();
+
+        return view('admin.ecommerce.settings', compact('sections', 'data'));
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $validated = $request->validate([
+            'section' => 'required|string',
+            'fields' => 'required|string',
+        ]);
+
+        $section = $validated['section'];
+
+        $allowedSections = ['hero', 'product_overview', 'offer', 'product_gallery', 'review', 'footer', 'mail', 'ribbon'];
+        if (!in_array($section, $allowedSections)) {
+            return back()->withErrors(['section' => 'Invalid section.']);
+        }
+
+        $fields = json_decode($validated['fields'], true);
+        if (!is_array($fields)) {
+            return back()->withErrors(['fields' => 'Invalid JSON data.']);
+        }
+
+        $admin = User::where('is_admin', true)->firstOrFail();
+        $admin->updateSiteSettings($section, $fields);
+
+        Cache::forget('site_settings');
+
+        return back()->with('success', 'Content updated successfully.');
+    }
 }

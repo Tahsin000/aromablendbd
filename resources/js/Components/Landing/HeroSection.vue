@@ -11,46 +11,36 @@
             <div class="text-center lg:text-right">
                 <span class="inline-flex items-center gap-2 bg-green-100 text-green-800 text-sm font-medium px-4 py-2 rounded-full mb-4 animate-fade-in-up">
                     <LeafIcon class="w-4 h-4" />
-                    ১০০% প্রাকৃতিক ও জৈব
+                    {{ c.badge }}
                 </span>
             </div>
 
             <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center mt-6">
                 <!-- Left: Hero content -->
                 <div class="z-20 text-center lg:text-right order-2 lg:order-1">
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 leading-tight mb-4 animate-fade-in-up">
-                        সেরা মানের <span class="text-green-600">অর্গানিক চা</span>
-                        <br class="hidden sm:block" /> আপনার দরজায়
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 leading-tight mb-4 animate-fade-in-up" v-html="c.title_1 + '<span class=text-green-600>' + c.title_highlight + '</span>' + c.title_2">
                     </h1>
                     <p class="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 max-w-xl mx-auto lg:mx-0 animate-fade-in-up" style="animation-delay: 0.2s">
-                        সিলেটের পাহাড়ি বাগান থেকে সংগ্রহ করা বিশুদ্ধ জৈব চা পাতা। কোনো রাসায়নিক সার নেই, কোনো কৃত্রিম স্বাদ নেই - শুধু প্রকৃতির আসল স্বাদ।
+                        {{ c.description }}
                     </p>
 
                     <!-- CTA buttons -->
                     <div class="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start animate-fade-in-up mb-8" style="animation-delay: 0.4s">
                         <a href="#products" class="group bg-green-600 hover:bg-green-700 text-white text-base sm:text-lg font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
-                            পণ্য দেখুন
+                            {{ c.cta_primary }}
                             <ArrowDownIcon class="w-5 h-5 group-hover:translate-y-1 transition-transform" />
                         </a>
                         <a href="#offer" class="group bg-white hover:bg-gray-50 text-green-600 text-base sm:text-lg font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl border-2 border-green-600 hover:border-green-700 transition-all duration-300 flex items-center justify-center gap-2">
                             <TagIcon class="w-5 h-5" />
-                            অফার দেখুন
+                            {{ c.cta_secondary }}
                         </a>
                     </div>
 
                     <!-- Trust stats row -->
                     <div class="grid grid-cols-3 gap-3 sm:gap-4 max-w-lg mx-auto animate-fade-in-up" style="animation-delay: 0.6s">
-                        <div class="text-center">
-                            <p class="text-xl sm:text-2xl font-bold text-green-600">৫০০০+</p>
-                            <p class="text-xs sm:text-sm text-gray-500">সন্তুষ্ট গ্রাহক</p>
-                        </div>
-                        <div class="text-center">
-                            <p class="text-xl sm:text-2xl font-bold text-green-600">৪.৮/৫</p>
-                            <p class="text-xs sm:text-sm text-gray-500">গড় রেটিং</p>
-                        </div>
-                        <div class="text-center">
-                            <p class="text-xl sm:text-2xl font-bold text-green-600">১০০০০+</p>
-                            <p class="text-xs sm:text-sm text-gray-500">অর্ডার সম্পন্ন</p>
+                        <div v-for="(stat, i) in c.stats.slice(0, 3)" :key="i" class="text-center">
+                            <p class="text-xl sm:text-2xl font-bold text-green-600">{{ stat.value }}</p>
+                            <p class="text-xs sm:text-sm text-gray-500">{{ stat.label }}</p>
                         </div>
                     </div>
                 </div>
@@ -114,7 +104,25 @@ const LeafIcon = { template: `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 2
 
 const props = defineProps({
     products: { type: Object, default: () => ({}) },
+    content: { type: Object, default: () => ({}) },
 });
+
+const c = computed(() => ({
+    badge: '১০% প্রাকৃতিক ও জৈব',
+    title_1: 'সেরা মানের ',
+    title_highlight: 'অর্গানিক চা',
+    title_2: '<br class="hidden sm:block" /> আপনার দরজায়',
+    description: 'সিলেটের পাহাড়ি বাগান থেকে সংগ্রহ করা বিশুদ্ধ জৈব চা পাতা। কোনো রাসায়নিক সার নেই, কোনো কৃত্রিম স্বাদ নেই - শুধু প্রকৃতির আসল স্বাদ।',
+    cta_primary: 'পণ্য দেখুন',
+    cta_secondary: 'অফার দেখুন',
+    stat1_value: '৫০০+',
+    stat1_label: 'সন্তুষ্ট গ্রাহক',
+    stat2_value: '৪.৮/৫',
+    stat2_label: 'গড় রেটিং',
+    stat3_value: '১০০০+',
+    stat3_label: 'অর্ডার সম্পন্ন',
+    ...props.content,
+}));
 
 const heroProduct = computed(() => props.products['green-tea'] || {});
 

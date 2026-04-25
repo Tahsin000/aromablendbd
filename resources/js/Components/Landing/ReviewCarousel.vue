@@ -1,5 +1,5 @@
 <template>
-    <section class="relative bg-gradient-to-br from-gray-50 to-green-50 py-16 lg:py-28 overflow-hidden">
+    <section id="reviews" class="relative bg-gradient-to-br from-gray-50 to-green-50 py-16 lg:py-28 overflow-hidden">
         <!-- Background pattern -->
         <div class="absolute inset-0 opacity-5">
             <div class="absolute inset-0" style="background-image: radial-gradient(circle, #16a34a 1px, transparent 1px); background-size: 30px 30px;"></div>
@@ -9,13 +9,12 @@
             <div class="text-center mb-12 lg:mb-16">
                 <span class="inline-flex items-center gap-2 text-green-600 font-semibold text-sm uppercase tracking-wider">
                     <ChatBubbleLeftRightIcon class="w-4 h-4" />
-                    গ্রাহকদের মতামত
+                    {{ c.badge }}
                 </span>
-                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mt-3">
-                    আমাদের <span class="text-green-600">সন্তুষ্ট</span> গ্রাহকরা কী বলছেন
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mt-3" v-html="c.title_1 + '<span class=text-green-600>' + c.title_highlight + '</span>' + c.title_2">
                 </h2>
                 <p class="text-gray-600 mt-3 lg:mt-4 text-base lg:text-lg max-w-2xl mx-auto">
-                    ৫,০০০+ সন্তুষ্ট গ্রাহক - প্রতিদিন বাড়ছে আমাদের পরিবার
+                    {{ c.description }}
                 </p>
             </div>
 
@@ -137,23 +136,11 @@
                 </div>
             </div>
 
-            <!-- Stats bar (static, not dynamic) -->
+            <!-- Stats bar -->
             <div class="mt-12 lg:mt-16 grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 max-w-3xl mx-auto">
-                <div class="text-center">
-                    <p class="text-2xl lg:text-3xl font-bold text-green-600">৫,০০০+</p>
-                    <p class="text-xs sm:text-sm text-gray-600 mt-1">সন্তুষ্ট গ্রাহক</p>
-                </div>
-                <div class="text-center">
-                    <p class="text-2xl lg:text-3xl font-bold text-green-600">৪.৮/৫</p>
-                    <p class="text-xs sm:text-sm text-gray-600 mt-1">গড় রেটিং</p>
-                </div>
-                <div class="text-center">
-                    <p class="text-2xl lg:text-3xl font-bold text-green-600">১০,০০০+</p>
-                    <p class="text-xs sm:text-sm text-gray-600 mt-1">অর্ডার সম্পন্ন</p>
-                </div>
-                <div class="text-center">
-                    <p class="text-2xl lg:text-3xl font-bold text-green-600">৯৮%</p>
-                    <p class="text-xs sm:text-sm text-gray-600 mt-1">পুনরায় অর্ডার</p>
+                <div v-for="(stat, i) in c.stats.slice(0, 4)" :key="i" class="text-center">
+                    <p class="text-2xl lg:text-3xl font-bold text-green-600">{{ stat.value }}</p>
+                    <p class="text-xs sm:text-sm text-gray-600 mt-1">{{ stat.label }}</p>
                 </div>
             </div>
         </div>
@@ -163,6 +150,28 @@
 <script setup>
 import { ChatBubbleLeftRightIcon } from '@heroicons/vue/24/outline';
 import { computed } from 'vue';
+
+const props = defineProps({
+    reviews: { type: Array, default: () => [] },
+    content: { type: Object, default: () => ({}) },
+});
+
+const c = computed(() => ({
+    badge: 'গ্রাহকদের মতামত',
+    title_1: 'আমাদের ',
+    title_highlight: 'সন্তুষ্ট',
+    title_2: ' গ্রাহকরা কী বলছেন',
+    description: '৫,০০+ সন্তুষ্ট গ্রাহক - প্রতিদিন বাড়ছে আমাদের পরিবার',
+    stat1_value: '৫,০০০+',
+    stat1_label: 'সন্তুষ্ট গ্রাহক',
+    stat2_value: '৪.৮/৫',
+    stat2_label: 'গড় রেটিং',
+    stat3_value: '১০,০০০+',
+    stat3_label: 'অর্ডার সম্পন্ন',
+    stat4_value: '৯৮%',
+    stat4_label: 'পুনরায় অর্ডার',
+    ...props.content,
+}));
 
 const fallbackReviews = [
     { name: 'রহিম আহমেদ', location: 'ঢাকা', initial: 'রহ', image: null, text: 'অর্গানিক চা সত্যিই অসাধারণ! স্বাদ আর গন্ধ দুটোই প্রিমিয়াম।', stars: 5 },
@@ -178,10 +187,6 @@ const fallbackReviews = [
     { name: 'সোহেল রানা', location: 'কক্সবাজার', initial: 'সো', image: null, text: 'সারাদিনে ৩ কাপ চা খাই। অর্গানিক চা স্বাস্থ্যের জন্য ভালো।', stars: 4 },
     { name: 'তাসনিম জাহান', location: 'রংপুর', initial: 'তা', image: null, text: 'ছেলেমেয়েরাও এখন এই চা খায়। কোনো কৃত্রিম স্বাদ নেই।', stars: 5 },
 ];
-
-const props = defineProps({
-    reviews: { type: Array, default: () => [] },
-});
 
 const allReviews = computed(() => {
     const source = props.reviews && props.reviews.length > 0 ? props.reviews : fallbackReviews;

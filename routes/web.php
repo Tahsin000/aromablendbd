@@ -98,6 +98,7 @@ Route::prefix('admin')->name('admin.')->middleware('admin.auth')->group(function
         Route::get('/attributes',        [EcommerceController::class, 'attributes'])->name('attributes');
         Route::get('/discount-edit',     [EcommerceController::class, 'discountEdit'])->name('discount-edit');
         Route::get('/settings',          [EcommerceController::class, 'settings'])->name('settings');
+        Route::post('/settings/update',  [EcommerceController::class, 'updateSettings'])->name('settings-update');
     });
 
     // ─── Projects ────────────────────────────────────────────────────────────

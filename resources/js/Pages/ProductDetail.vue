@@ -1,10 +1,10 @@
 <template>
     <Head :title="product.name + ' - অর্গানিক চা'" />
     <div class="min-h-screen bg-white">
-        <StickyRibbon />
+        <StickyRibbon :content="site?.ribbon" />
 
         <!-- Breadcrumb -->
-        <div class="bg-gray-50 py-4 mt-12">
+        <div :class="['bg-gray-50 py-4', ribbonStatus ? 'mt-12' : '']">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <nav class="flex items-center gap-2 text-sm text-gray-600" dir="ltr">
                     <a href="/" class="hover:text-green-600 transition-colors">হোম</a>
@@ -96,10 +96,10 @@
                     </div>
 
                     <!-- Offer countdown -->
-                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4">
+                    <div v-if="showCountdown" class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4">
                         <div class="flex items-center gap-2 mb-3">
                             <ClockIcon class="w-5 h-5 text-amber-600" />
-                            <span class="font-bold text-amber-800">অফার শেষ হতে বাকি</span>
+                            <span class="font-bold text-amber-800">{{ timerLabel }}</span>
                         </div>
                         <div class="flex gap-3">
                             <div v-for="unit in ['hours', 'minutes', 'seconds']" :key="unit" class="text-center">
@@ -231,6 +231,7 @@ import {
 const props = defineProps({
     product: { type: Object, required: true },
     products: { type: Object, required: true },
+    site: { type: Object, default: () => ({}) },
 });
 
 const quantity = ref(1);
@@ -240,6 +241,26 @@ const zoomX = ref(50);
 const zoomY = ref(50);
 const countdown = ref({ hours: '00', minutes: '00', seconds: '00' });
 let timer = null;
+
+// Ribbon timer awareness
+const ribbonConfig = computed(() => props.site?.ribbon || {});
+const ribbonStatus = computed(() => {
+    const s = ribbonConfig.value.status;
+    return s === true || s === 'true' || s === 1;
+});
+const timerEnabled = computed(() => ribbonConfig.value.timer?.enabled === true);
+
+const showCountdown = computed(() => ribbonStatus.value && timerEnabled.value && isTimerInRange.value);
+const timerLabel = computed(() => ribbonConfig.value.timer?.countdown_label || 'অফার শেষ হতে বাকি');
+
+const isTimerInRange = computed(() => {
+    const { start_date, end_date } = ribbonConfig.value.timer || {};
+    if (!start_date || !end_date) return false;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const start = new Date(start_date + 'T00:00:00');
+    const end = new Date(end_date + 'T23:59:59');
+    return today >= start && today <= end;
+});
 
 const relatedProducts = computed(() =>
     Object.values(props.products).filter(p => p.id !== props.product.id).slice(0, 3)
@@ -288,8 +309,8 @@ function formatBangla(n) {
 }
 
 function updateCountdown() {
-    const end = new Date();
-    end.setHours(23, 59, 59, 0);
+    if (!isTimerInRange.value) { countdown.value = { hours: '00', minutes: '00', seconds: '00' }; return; }
+    const end = new Date(ribbonConfig.value.timer.end_date + 'T23:59:59');
     const diff = Math.max(0, end - new Date());
     const h = Math.floor(diff / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
