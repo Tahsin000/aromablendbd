@@ -11,7 +11,7 @@ class Product extends Model
     protected $fillable = [
         'name', 'slug', 'desc', 'price', 'original_price',
         'badge', 'stock', 'discount_label', 'review_count',
-        'is_active', 'sort_order',
+        'is_active', 'highlight', 'sort_order',
     ];
 
     protected $casts = [
@@ -20,6 +20,7 @@ class Product extends Model
         'stock'          => 'integer',
         'review_count'   => 'integer',
         'is_active'      => 'boolean',
+        'highlight'      => 'boolean',
         'sort_order'     => 'integer',
     ];
 
@@ -107,6 +108,7 @@ class Product extends Model
             'stock'          => $this->stock,
             'discount_label' => $this->discount_label,
             'review_count'   => $this->review_count,
+            'highlight'      => $this->highlight,
             'image'          => $this->thumbnail_url,
             'images'         => $this->image_urls,
             'tags'           => $this->tags->map(fn ($t) => [

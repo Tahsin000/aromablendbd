@@ -1,14 +1,15 @@
 <template>
     <div ref="sliderRef" class="relative overflow-hidden rounded-2xl" @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd" @mousedown="onDragStart">
         <!-- Track -->
-        <div class="flex transition-transform duration-500 ease-out select-none"
+        <div class="flex items-stretch transition-transform duration-500 ease-out select-none"
              :style="{ transform: `translateX(-${translateX}%)`, cursor: isDragging ? 'grabbing' : 'grab' }">
             <div v-for="(item, i) in trackItems" :key="`${item.id}-${i}`"
                  :style="{ width: `${slideWidth}%`, flexShrink: 0 }"
-                 class="px-1.5 sm:px-2">
-                <div class="bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-100">
+                 class="px-1.5 sm:px-2 self-stretch"
+                 @mouseenter="pauseAutoplay" @mouseleave="resumeAutoplay">
+                <div class="bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-100 flex flex-col h-full">
                     <!-- Image -->
-                    <div class="relative h-36 sm:h-44 md:h-48 bg-gradient-to-br from-green-100 to-emerald-100 overflow-hidden cursor-pointer"
+                    <div class="relative h-44 sm:h-48 bg-gradient-to-br from-green-100 to-emerald-100 overflow-hidden cursor-pointer flex-shrink-0"
                          @click="goToProduct(item.id)">
                         <img :src="item.image" :alt="item.name"
                              class="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
@@ -29,29 +30,29 @@
                         </span>
                     </div>
                     <!-- Content -->
-                    <div class="p-3 sm:p-4 md:p-5">
-                        <h4 class="text-sm sm:text-base md:text-lg font-bold text-gray-900 mb-1.5 sm:mb-2 cursor-pointer hover:text-green-600 transition-colors" @click="goToProduct(item.id)">{{ item.name }}</h4>
-                        <p class="text-gray-600 text-[11px] sm:text-xs md:text-sm mb-2 sm:mb-3 line-clamp-2">{{ truncate(item.desc) }}</p>
+                    <div class="p-3 sm:p-4 md:p-5 flex flex-col flex-1">
+                        <h4 class="text-sm sm:text-base font-bold text-gray-900 mb-1 cursor-pointer hover:text-green-600 transition-colors leading-snug" @click="goToProduct(item.id)">{{ item.name }}</h4>
+                        <p class="text-gray-500 text-xs mb-3 truncate">{{ item.desc }}</p>
                         <!-- Price -->
-                        <div class="flex items-baseline gap-1.5 sm:gap-2 mb-2 sm:mb-3 md:mb-4">
-                            <span class="text-base sm:text-xl md:text-2xl font-bold text-green-600">{{ formatBangla(item.price) }}৳</span>
-                            <span class="text-[10px] sm:text-xs md:text-sm text-gray-400 line-through">{{ formatBangla(item.original_price) }}৳</span>
+                        <div class="flex items-baseline gap-1.5 mb-3">
+                            <span class="text-lg sm:text-xl font-bold text-green-600">{{ formatBangla(item.price) }}৳</span>
+                            <span class="text-xs text-gray-400 line-through">{{ formatBangla(item.original_price) }}৳</span>
                         </div>
-                        <!-- Qty + Checkout -->
-                        <div class="space-y-2 sm:space-y-3">
+                        <!-- Qty + Checkout (pushed to bottom) -->
+                        <div class="mt-auto space-y-2">
                             <!-- Qty selector -->
-                            <div class="flex items-center gap-1.5 sm:gap-2">
-                                <span class="text-[11px] sm:text-xs md:text-sm text-gray-600">পরিমাণ:</span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-xs text-gray-600">পরিমাণ:</span>
                                 <button @click.stop="quantities[item.id] = Math.max(1, (quantities[item.id] || 1) - 1)"
-                                        class="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-lg border border-gray-200 hover:border-green-600 hover:bg-green-50 transition-colors flex items-center justify-center font-bold text-sm">-</button>
-                                <span class="w-6 sm:w-7 md:w-8 text-center font-bold text-xs sm:text-sm">{{ formatBangla(quantities[item.id] || 1) }}</span>
+                                        class="w-7 h-7 rounded-lg border border-gray-200 hover:border-green-600 hover:bg-green-50 transition-colors flex items-center justify-center font-bold text-sm">-</button>
+                                <span class="w-7 text-center font-bold text-xs">{{ formatBangla(quantities[item.id] || 1) }}</span>
                                 <button @click.stop="quantities[item.id] = (quantities[item.id] || 1) + 1"
-                                        class="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-lg border border-gray-200 hover:border-green-600 hover:bg-green-50 transition-colors flex items-center justify-center font-bold text-sm">+</button>
+                                        class="w-7 h-7 rounded-lg border border-gray-200 hover:border-green-600 hover:bg-green-50 transition-colors flex items-center justify-center font-bold text-sm">+</button>
                             </div>
                             <!-- Checkout button -->
                             <button @click.stop="buyNow(item.id)"
-                                    class="w-full bg-green-600 hover:bg-green-700 text-white text-[11px] sm:text-xs md:text-sm font-bold py-2 sm:py-2.5 md:py-3 rounded-lg transition-colors flex items-center justify-center gap-1.5 sm:gap-2 shadow hover:shadow-md">
-                                <ShoppingBagIcon class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                    class="w-full bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow hover:shadow-md">
+                                <ShoppingBagIcon class="w-3.5 h-3.5" />
                                 চেকআউট করুন
                             </button>
                         </div>

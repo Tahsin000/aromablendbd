@@ -51,27 +51,37 @@
                         <!-- Glow ring -->
                         <div class="absolute inset-4 bg-green-300 rounded-full opacity-20 blur-2xl animate-pulse"></div>
 
-                        <!-- Main product card -->
-                        <div class="relative bg-white rounded-3xl shadow-2xl overflow-hidden border border-green-100">
-                            <!-- Hero product image -->
-                            <div class="relative h-48 sm:h-56 lg:h-64 bg-gradient-to-br from-green-100 to-emerald-100 overflow-hidden cursor-pointer"
-                                 @click="$emit('go-product', 'green-tea')">
-                                <img :src="heroProduct.image" :alt="heroProduct.name"
-                                     class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                        <!-- Hero product card (DB-driven) -->
+                        <div v-if="highlightedProduct"
+                             class="relative bg-white rounded-3xl shadow-2xl overflow-hidden border border-green-100 cursor-pointer group"
+                             @click="$emit('go-product', highlightedProduct.slug)">
+                            <!-- Product image -->
+                            <div class="relative h-48 sm:h-56 lg:h-64 bg-gradient-to-br from-green-100 to-emerald-100 overflow-hidden">
+                                <img :src="highlightedProduct.image" :alt="highlightedProduct.name"
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                                 <!-- Badge -->
-                                <span class="absolute top-3 left-3 bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1">
+                                <span v-if="highlightedProduct.badge" class="absolute top-3 left-3 bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1">
                                     <TagIcon class="w-3 h-3" />
-                                    {{ heroProduct.badge }}
+                                    {{ highlightedProduct.badge }}
                                 </span>
                                 <!-- Price tag -->
                                 <div class="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1.5">
-                                    <span class="text-lg font-bold text-green-600">{{ formatBangla(heroProduct.price) }}৳</span>
-                                    <span class="text-xs text-gray-400 line-through ml-1">{{ formatBangla(heroProduct.original_price) }}৳</span>
+                                    <span class="text-lg font-bold text-green-600">{{ formatBangla(highlightedProduct.price) }}৳</span>
+                                    <span class="text-xs text-gray-400 line-through ml-1">{{ formatBangla(highlightedProduct.original_price) }}৳</span>
                                 </div>
                             </div>
+                            <!-- Product name -->
+                            <div class="p-4">
+                                <h3 class="font-bold text-gray-900 text-base">{{ highlightedProduct.name }}</h3>
+                                <p class="text-gray-500 text-sm mt-1 truncate">{{ highlightedProduct.desc }}</p>
+                                <span class="inline-block mt-2 text-xs text-green-600 font-semibold group-hover:underline">অর্ডার করুন →</span>
+                            </div>
+                        </div>
 
+                        <!-- Fallback placeholder when no product is highlighted -->
+                        <div v-else class="relative bg-white rounded-3xl shadow-2xl overflow-hidden border border-green-100">
                             <!-- Quick category nav -->
-                            <div class="grid grid-cols-4 gap-2 p-3 sm:p-4">
+                            <div class="grid grid-cols-4 gap-2 p-4">
                                 <div v-for="cat in categories" :key="cat.id"
                                      @click="$emit('go-product', cat.id)"
                                      class="flex flex-col items-center gap-1 p-2 sm:p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer group">
@@ -104,6 +114,7 @@ const LeafIcon = { template: `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 2
 
 const props = defineProps({
     products: { type: Object, default: () => ({}) },
+    heroProduct: { type: Object, default: () => null },
     content: { type: Object, default: () => ({}) },
 });
 
@@ -124,7 +135,8 @@ const c = computed(() => ({
     ...props.content,
 }));
 
-const heroProduct = computed(() => props.products['green-tea'] || {});
+// Use the explicitly highlighted product passed from the controller
+const highlightedProduct = computed(() => props.heroProduct ?? null);
 
 const categories = [
     {

@@ -63,6 +63,7 @@
                         <th>Stock</th>
                         <th>Badge</th>
                         <th>Status</th>
+                        <th class="text-center">Hero</th>
                         <th>Sort</th>
                         <th class="text-center">Actions</th>
                     </tr>
@@ -110,6 +111,21 @@
                                     <button type="submit" class="badge badge-soft-success border-0" title="Click to deactivate">Active</button>
                                 @else
                                     <button type="submit" class="badge badge-soft-danger border-0" title="Click to activate">Inactive</button>
+                                @endif
+                            </form>
+                        </td>
+                        <td class="text-center">
+                            <form action="{{ route('admin.ecommerce.products.highlight', $product) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('PATCH')
+                                @if($product->highlight)
+                                    <button type="submit" class="btn btn-warning btn-icon btn-sm" title="Hero product (click to remove)">
+                                        <i class="ti ti-star-filled fs-lg"></i>
+                                    </button>
+                                @else
+                                    <button type="submit" class="btn btn-default btn-icon btn-sm" title="Set as hero product">
+                                        <i class="ti ti-star fs-lg"></i>
+                                    </button>
                                 @endif
                             </form>
                         </td>

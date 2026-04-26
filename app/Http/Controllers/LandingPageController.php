@@ -56,10 +56,14 @@ class LandingPageController extends Controller
                 ->map(fn ($p) => $p->toFrontendArray());
         });
 
+        // Pass highlighted product separately for the hero section
+        $heroProduct = collect($products)->first(fn ($p) => $p['highlight'] ?? false);
+
         return Inertia::render('LandingPage', [
-            'products' => $products,
-            'reviews'  => $reviews,
-            'site'     => $activeSettings,
+            'products'    => $products,
+            'heroProduct' => $heroProduct,
+            'reviews'     => $reviews,
+            'site'        => $activeSettings,
         ]);
     }
 

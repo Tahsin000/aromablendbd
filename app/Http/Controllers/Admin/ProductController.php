@@ -209,6 +209,18 @@ class ProductController extends Controller
         return back()->with('success', 'Product status updated.');
     }
 
+    public function toggleHighlight(Product $product)
+    {
+        if (!$product->highlight) {
+            // Turn off highlight on all others first (only one highlighted at a time)
+            Product::where('id', '!=', $product->id)->update(['highlight' => false]);
+            $product->update(['highlight' => true]);
+        } else {
+            $product->update(['highlight' => false]);
+        }
+        return back()->with('success', 'Product highlight updated.');
+    }
+
     public function destroyImage(Product $product, \App\Models\ProductImage $image)
     {
         // Ensure the image belongs to this product
