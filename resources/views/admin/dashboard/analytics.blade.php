@@ -1,1069 +1,429 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Kijir Dashboard')
+@section('title', 'Analytics Dashboard')
+
+@php
+    $rangeLabels = [
+        'weekly' => 'Weekly',
+        'monthly' => 'Monthly',
+        'weekend' => 'Weekend',
+        'yearly' => 'Yearly',
+    ];
+    $activeData = $rangeAnalytics[$activeRange] ?? $rangeAnalytics['monthly'];
+@endphp
+
 @push('styles')
+<style>
+    .analytics-kpi-value {
+        font-size: 1.55rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+    .analytics-kpi-sub {
+        font-size: 0.82rem;
+    }
+    .analytics-chart-lg {
+        min-height: 360px;
+    }
+    .analytics-chart-md {
+        min-height: 300px;
+    }
+    .analytics-table-wrap {
+        max-height: 360px;
+        overflow-y: auto;
+    }
+</style>
 @endpush
 
 @section('content')
-
-
-    <div class="container-fluid">
-        <div class="page-title-head d-flex align-items-center">
-            <div class="flex-grow-1">
-                <h4 class="page-main-title m-0">eCommerce</h4>
-            </div>
-
-            <div class="text-end">
-                <ol class="breadcrumb m-0 py-0">
-                    <li class="breadcrumb-item"><a href="javascript: void(0);">Hash</a></li>
-                    <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                    <li class="breadcrumb-item active">eCommerce</li>
-                </ol>
-            </div>
+<div class="container-fluid">
+    <div class="page-title-head d-flex flex-wrap align-items-center gap-2 mb-3">
+        <div class="flex-grow-1">
+            <h4 class="page-main-title m-0">Decision Analytics Dashboard</h4>
+            <p class="text-muted mb-0 fs-13">
+                Sales, quality, product participation, order flow, and delivery insights in one page.
+            </p>
         </div>
-
-
-        <div class="row">
-            <div class="col-xxl-5">
-                <div class="row h-100">
-                    <div class="col-lg-3 col-md-6 col-xxl-6">
-                        <div class="card card-h-100 overflow-hidden">
-                            <div class="card-body pb-0">
-                                <div class="d-flex align-items-center justify-content-between mb-2">
-                                    <div class="overflow-hidden flex-shrink-0">
-                                        <h3 class="fw-normal text-reset fs-20 lh-base">
-                                            <span class="text-muted fs-base text-uppercase h5">Good Day,</span>
-                                            <br />
-                                            <b>David Dev!</b>
-                                        </h3>
-                                    </div>
-                                    <div class="flex-grow-1 text-end">
-                                        <img class="d-none d-xxl-inline-block" src="assets/images/svg/email-campaign.svg"
-                                            width="110" alt="Generic placeholder image" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body d-flex align-items-center p-2 bg-light bg-opacity-50">
-                                <p class="d-flex align-items-center justify-content-between w-100 mb-0">
-                                    <span class="me-2"><i class="ti ti-calendar fs-15 align-middle"></i>
-                                        <span class="align-middle ms-1 fw-semibold">
-                                            <script>
-                                                document.write(new Date().toLocaleDateString("en-US", {
-                                                    day: "numeric",
-                                                    month: "short",
-                                                    year: "numeric"
-                                                }))
-                                            </script>
-                                        </span></span>
-                                    <span class="text-nowrap"><i class="ti ti-clock fs-15 align-middle"></i><span
-                                            class="align-middle ms-1 fw-semibold" id="clock-widget"></span></span>
-                                </p>
-                            </div>
-                            <!-- end card-body -->
-                        </div>
-                    </div>
-                    <!-- end col-->
-
-                    <div class="col-lg-3 col-md-6 col-xxl-6">
-                        <div class="card card-h-100">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h5 class="text-muted fs-base text-uppercase" title="Number of Orders">
-                                            Orders</h5>
-                                        <h3 class="my-3 py-1 fw-semibold"><span data-target="9,754">0</span>
-                                        </h3>
-                                        <p class="mb-0 text-muted">
-                                            <span class="text-danger me-2"><i class="ti ti-arrow-down"></i>
-                                                1.89%</span>
-                                            <span class="text-nowrap">Since last month</span>
-                                        </p>
-                                    </div>
-                                    <div class="avatar-md flex-shrink-0">
-                                        <span class="avatar-title bg-primary-subtle rounded-circle fs-22">
-                                            <i class="ti ti-shopping-cart text-primary"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- end card-->
-                    </div>
-                    <!-- end col-->
-
-                    <div class="col-lg-3 col-md-6 col-xxl-6">
-                        <div class="card card-h-100">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h5 class="text-muted fs-base text-uppercase" title="Average Revenue">
-                                            Revenue</h5>
-                                        <h3 class="my-3 py-1 fw-semibold">$<span data-target="75.21">0</span>k
-                                        </h3>
-                                        <p class="mb-0 text-muted">
-                                            <span class="text-danger me-2"><i class="ti ti-arrow-down"></i>
-                                                5.23%</span>
-                                            <span class="text-nowrap">Since last month</span>
-                                        </p>
-                                    </div>
-                                    <div class="avatar-md flex-shrink-0">
-                                        <span class="avatar-title bg-primary-subtle rounded-circle fs-22">
-                                            <i class="ti ti-pig-money text-primary"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- end card-->
-                    </div>
-                    <!-- end col-->
-
-                    <div class="col-lg-3 col-md-6 col-xxl-6">
-                        <div class="card card-h-100">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h5 class="text-muted fs-base text-uppercase" title="Growth">Growth</h5>
-                                        <h3 class="my-3 py-1 fw-semibold">+ <span data-target="25.08">0</span>%
-                                        </h3>
-                                        <p class="mb-0 text-muted">
-                                            <span class="text-success me-2"><i class="ti ti-arrow-up"></i>
-                                                4.87%</span>
-                                            <span class="text-nowrap">Since last month</span>
-                                        </p>
-                                    </div>
-                                    <div class="avatar-md flex-shrink-0">
-                                        <span class="avatar-title bg-primary-subtle rounded-circle fs-22">
-                                            <i class="ti ti-trending-up text-primary"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- end card-->
-                    </div>
-                    <!-- end col-->
-                </div>
-                <!-- end row -->
-            </div>
-            <!-- end col -->
-
-            <div class="col-xxl-7">
-                <div class="row h-100">
-                    <div class="col-lg-6">
-                        <div class="card card-h-100">
-                            <div class="card-header justify-content-between">
-                                <h4 class="card-title">Store Performance Analytics</h4>
-                                <div>
-                                    <a href="#" class="btn btn-sm btn-default" data-action="card-refresh"><i
-                                            class="ti ti-refresh me-1"></i> Refresh</a>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div dir="ltr">
-                                    <div id="total-sales-chart" class="apex-charts"></div>
-                                </div>
-                                <div class="text-center mb-1">
-                                    <span class="badge badge-outline-light text-dark p-1 px-2 rounded-pill fs-12"><i
-                                            class="ti ti-star-filled text-danger me-1"></i> POOR SALES</span>
-                                </div>
-                            </div>
-                            <!-- end card-body-->
-                        </div>
-                        <!-- end card-->
-                    </div>
-                    <!-- end col-->
-                    <div class="col-lg-6">
-                        <div class="card card-h-100">
-                            <div class="card-header justify-content-between">
-                                <h4 class="card-title">Weekly Performance Insights</h4>
-                                <div class="dropdown ms-auto">
-                                    <a href="#" class="btn btn-sm btn-default btn-icon" data-bs-toggle="dropdown">
-                                        <i class="ti ti-dots-vertical fs-lg"></i>
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li>
-                                            <a class="dropdown-item" href="#"> <i class="ti ti-refresh me-2"></i>
-                                                Refresh Data </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="#"> <i class="ti ti-download me-2"></i>
-                                                Download Report </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="#"> <i class="ti ti-share me-2"></i>
-                                                Share Insights </a>
-                                        </li>
-                                        <li>
-                                            <hr class="dropdown-divider" />
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item text-danger" href="#"> <i
-                                                    class="ti ti-archive me-2"></i> Archive Widget </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div class="card-body">
-                                <div dir="ltr">
-                                    <div id="weekly-performance-chart" class="apex-charts"></div>
-                                </div>
-                            </div>
-                            <!-- end card-body-->
-                        </div>
-                        <!-- end card-->
-                    </div>
-                </div>
-                <!-- end row-->
-            </div>
-            <!-- end col -->
+        <div class="btn-group" role="group" aria-label="Range Filter">
+            @foreach($rangeLabels as $key => $label)
+                <button
+                    type="button"
+                    class="btn {{ $activeRange === $key ? 'btn-primary' : 'btn-outline-primary' }} range-filter-btn"
+                    data-range="{{ $key }}"
+                >
+                    {{ $label }}
+                </button>
+            @endforeach
         </div>
-        <!-- end row -->
-
-        <div class="row">
-            <div class="col-xxl-6">
-                <div class="card card-h-100">
-                    <div class="card-header border-dashed card-tabs">
-                        <div class="flex-grow-1">
-                            <h4 class="card-title">Sales Report <span class="text-muted fs-base fw-normal">(25822
-                                    Orders)</span></h4>
-                        </div>
-                        <ul class="nav nav-tabs nav-justified card-header-tabs nav-bordered">
-                            <li class="nav-item">
-                                <a href="#!" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                    <span class="d-md-none d-block">1D</span>
-                                    <span class="d-none d-md-block">Today</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#!" data-bs-toggle="tab" aria-expanded="true" class="nav-link active">
-                                    <span class="d-md-none d-block">1M</span>
-                                    <span class="d-none d-md-block">Monthly</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#!" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
-                                    <span class="d-md-none d-block">1Y</span>
-                                    <span class="d-none d-md-block">Annual</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="bg-light bg-opacity-25 border-bottom border-dashed">
-                            <div class="row text-center">
-                                <div class="col-sm-4">
-                                    <p class="text-muted mt-3 mb-1">Revenue</p>
-                                    <h4 class="mb-3">
-                                        <i class="ti ti-wallet text-success me-1"></i>
-                                        <span>$<span data-target="78,224.68"></span></span>
-                                    </h4>
-                                </div>
-                                <div class="col-sm-4">
-                                    <p class="text-muted mt-3 mb-1">Orders</p>
-                                    <h4 class="mb-3">
-                                        <i class="ti ti-basket text-success me-1"></i>
-                                        <span><span data-target="8541"></span></span>
-                                    </h4>
-                                </div>
-                                <div class="col-sm-4">
-                                    <p class="text-muted mt-3 mb-1">Growth Rate</p>
-                                    <h4 class="mb-3">
-                                        <i class="ti ti-trending-up text-success me-1"></i>
-                                        <span><span data-target="25.3"></span>%</span>
-                                    </h4>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="p-3 pt-1">
-                            <div class="dash-item-overlay d-none d-md-block" dir="ltr">
-                                <h5>Today's Earning: $8,975.30</h5>
-                                <p class="text-muted mb-0 mt-2">Property PS007 is not receiving hits. Either
-                                    your site is not receiving any sessions.</p>
-                            </div>
-                            <div dir="ltr">
-                                <div id="sales-report-chart" class="apex-charts"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- end card-body-->
-                </div>
-                <!-- end card-->
-            </div>
-            <!-- end col-->
-
-            <div class="col-xxl-6">
-                <div data-table data-table-rows-per-page="6" class="card card-h-100">
-                    <div class="card-header justify-content-between">
-                        <h4 class="card-title">Top Selling Products</h4>
-                        <div>
-                            <a href="#" class="btn btn-sm btn-default"><i class="ti ti-cloud-upload me-1"></i>
-                                Export</a>
-                            <a href="#" class="btn btn-sm btn-light"><i class="ti ti-download me-1"></i>
-                                Import</a>
-                        </div>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-custom table-centered table-hover w-100 mb-0">
-                                <tbody class="text-nowrap">
-                                    <!-- Record 1 -->
-                                    <tr>
-                                        <td style="width: 60px">
-                                            <img src="assets/images/products/1.png" alt="product-pic" height="36" />
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Modern Fabric Sofa Set</h5>
-                                            <span class="text-muted fs-xs">By: Homeluxe</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$499.00</h5>
-                                            <span class="text-muted fs-xs">Price</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">34</h5>
-                                            <span class="text-muted fs-xs">Quantity</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$16,966.00</h5>
-                                            <span class="text-muted fs-xs">Amount</span>
-                                        </td>
-                                        <td>
-                                            <span
-                                                class="badge bg-warning-subtle text-warning px-2 py-1 rounded-pill fs-12">
-                                                Low Stock </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Record 2 -->
-                                    <tr>
-                                        <td style="width: 60px">
-                                            <img src="assets/images/products/2.png" alt="product-pic" height="36" />
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">L-Shaped Sectional Sofa</h5>
-                                            <span class="text-muted fs-xs">By: ComfortHub</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$899.00</h5>
-                                            <span class="text-muted fs-xs">Price</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">21</h5>
-                                            <span class="text-muted fs-xs">Quantity</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$18,879.00</h5>
-                                            <span class="text-muted fs-xs">Amount</span>
-                                        </td>
-                                        <td>
-                                            <span
-                                                class="badge bg-success-subtle text-success px-2 py-1 rounded-pill fs-12">
-                                                In Stock </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Record 3 -->
-                                    <tr>
-                                        <td style="width: 60px">
-                                            <img src="assets/images/products/3.png" alt="product-pic" height="36" />
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Velvet Recliner Chair</h5>
-                                            <span class="text-muted fs-xs">By: SoftEase</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$379.00</h5>
-                                            <span class="text-muted fs-xs">Price</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">47</h5>
-                                            <span class="text-muted fs-xs">Quantity</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$17,813.00</h5>
-                                            <span class="text-muted fs-xs">Amount</span>
-                                        </td>
-                                        <td>
-                                            <span
-                                                class="badge bg-success-subtle text-success px-2 py-1 rounded-pill fs-12">
-                                                In Stock </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Record 4 -->
-                                    <tr>
-                                        <td style="width: 60px">
-                                            <img src="assets/images/products/4.png" alt="product-pic" height="36" />
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Classic Wooden Coffee Table</h5>
-                                            <span class="text-muted fs-xs">By: OakCraft</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$259.00</h5>
-                                            <span class="text-muted fs-xs">Price</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">58</h5>
-                                            <span class="text-muted fs-xs">Quantity</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$15,022.00</h5>
-                                            <span class="text-muted fs-xs">Amount</span>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-danger-subtle text-danger px-2 py-1 rounded-pill fs-12">
-                                                Out of Stock </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Record 5 -->
-                                    <tr>
-                                        <td style="width: 60px">
-                                            <img src="assets/images/products/5.png" alt="product-pic" height="36" />
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Minimalist TV Stand</h5>
-                                            <span class="text-muted fs-xs">By: FurniPro</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$315.00</h5>
-                                            <span class="text-muted fs-xs">Price</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">64</h5>
-                                            <span class="text-muted fs-xs">Quantity</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$20,160.00</h5>
-                                            <span class="text-muted fs-xs">Amount</span>
-                                        </td>
-                                        <td>
-                                            <span
-                                                class="badge bg-success-subtle text-success px-2 py-1 rounded-pill fs-12">
-                                                In Stock </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Record 6 -->
-                                    <tr>
-                                        <td style="width: 60px">
-                                            <img src="assets/images/products/6.png" alt="product-pic" height="36" />
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Leather Lounge Chair</h5>
-                                            <span class="text-muted fs-xs">By: UrbanStyle</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$425.00</h5>
-                                            <span class="text-muted fs-xs">Price</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">39</h5>
-                                            <span class="text-muted fs-xs">Quantity</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$16,575.00</h5>
-                                            <span class="text-muted fs-xs">Amount</span>
-                                        </td>
-                                        <td>
-                                            <span
-                                                class="badge bg-warning-subtle text-warning px-2 py-1 rounded-pill fs-12">
-                                                Low Stock </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Record 7 -->
-                                    <tr>
-                                        <td style="width: 60px">
-                                            <img src="assets/images/products/7.png" alt="product-pic" height="36" />
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Glass Center Table</h5>
-                                            <span class="text-muted fs-xs">By: CrystalCasa</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$289.00</h5>
-                                            <span class="text-muted fs-xs">Price</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">52</h5>
-                                            <span class="text-muted fs-xs">Quantity</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$15,028.00</h5>
-                                            <span class="text-muted fs-xs">Amount</span>
-                                        </td>
-                                        <td>
-                                            <span
-                                                class="badge bg-success-subtle text-success px-2 py-1 rounded-pill fs-12">
-                                                In Stock </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Record 8 -->
-                                    <tr>
-                                        <td style="width: 60px">
-                                            <img src="assets/images/products/8.png" alt="product-pic" height="36" />
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Wooden Bookshelf Unit</h5>
-                                            <span class="text-muted fs-xs">By: TimberWorks</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$349.00</h5>
-                                            <span class="text-muted fs-xs">Price</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">28</h5>
-                                            <span class="text-muted fs-xs">Quantity</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$9,772.00</h5>
-                                            <span class="text-muted fs-xs">Amount</span>
-                                        </td>
-                                        <td>
-                                            <span
-                                                class="badge bg-warning-subtle text-warning px-2 py-1 rounded-pill fs-12">
-                                                Low Stock </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Record 9 -->
-                                    <tr>
-                                        <td style="width: 60px">
-                                            <img src="assets/images/products/9.png" alt="product-pic" height="36" />
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Luxury King Bed Frame</h5>
-                                            <span class="text-muted fs-xs">By: DreamRest</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$1,099.00</h5>
-                                            <span class="text-muted fs-xs">Price</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">15</h5>
-                                            <span class="text-muted fs-xs">Quantity</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$16,485.00</h5>
-                                            <span class="text-muted fs-xs">Amount</span>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-danger-subtle text-danger px-2 py-1 rounded-pill fs-12">
-                                                Out of Stock </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Record 10 -->
-                                    <tr>
-                                        <td style="width: 60px">
-                                            <img src="assets/images/products/10.png" alt="product-pic" height="36" />
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Round Dining Table Set</h5>
-                                            <span class="text-muted fs-xs">By: CasaDine</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$725.00</h5>
-                                            <span class="text-muted fs-xs">Price</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">25</h5>
-                                            <span class="text-muted fs-xs">Quantity</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$18,125.00</h5>
-                                            <span class="text-muted fs-xs">Amount</span>
-                                        </td>
-                                        <td>
-                                            <span
-                                                class="badge bg-success-subtle text-success px-2 py-1 rounded-pill fs-12">
-                                                In Stock </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Record 11 -->
-                                    <tr>
-                                        <td style="width: 60px">
-                                            <img src="assets/images/products/2.png" alt="product-pic" height="36" />
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Ergonomic Office Chair</h5>
-                                            <span class="text-muted fs-xs">By: WorkEase</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$269.00</h5>
-                                            <span class="text-muted fs-xs">Price</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">44</h5>
-                                            <span class="text-muted fs-xs">Quantity</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$11,836.00</h5>
-                                            <span class="text-muted fs-xs">Amount</span>
-                                        </td>
-                                        <td>
-                                            <span
-                                                class="badge bg-success-subtle text-success px-2 py-1 rounded-pill fs-12">
-                                                In Stock </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Record 12 -->
-                                    <tr>
-                                        <td style="width: 60px">
-                                            <img src="assets/images/products/5.png" alt="product-pic" height="36" />
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Nightstand with Drawers</h5>
-                                            <span class="text-muted fs-xs">By: CozyHome</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$189.00</h5>
-                                            <span class="text-muted fs-xs">Price</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">53</h5>
-                                            <span class="text-muted fs-xs">Quantity</span>
-                                        </td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">$10,017.00</h5>
-                                            <span class="text-muted fs-xs">Amount</span>
-                                        </td>
-                                        <td>
-                                            <span
-                                                class="badge bg-warning-subtle text-warning px-2 py-1 rounded-pill fs-12">
-                                                Low Stock </span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <!-- end table-respo.-->
-                    </div>
-                    <!-- end card-body-->
-
-                    <div class="card-footer border-0">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div data-table-pagination-info="products"></div>
-                            <div data-table-pagination></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- end row -->
-
-        <div class="row">
-            <div class="col-xxl-5">
-                <div data-table data-table-rows-per-page="5" class="card card-h-100">
-                    <div class="card-header justify-content-between">
-                        <h4 class="card-title">Recent Orders <span class="text-muted fs-base fw-normal">(186.25k
-                                Transactions)</span></h4>
-                        <div>
-                            <a href="#" class="btn btn-sm btn-default"> <i class="ti ti-cloud-upload me-1"></i>
-                                Export </a>
-                            <a href="#" class="btn btn-sm btn-light"> <i class="ti ti-download me-1"></i> Import
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-custom table-centered table-hover w-100 mb-0">
-                                <thead class="bg-light align-middle bg-opacity-25 thead-sm">
-                                    <tr class="text-uppercase table-nowrap fs-xxs">
-                                        <th data-table-sort>#ID</th>
-                                        <th data-table-sort>Customer</th>
-                                        <th data-table-sort>Date</th>
-                                        <th data-table-sort>Amount</th>
-                                        <th data-table-sort>Payment</th>
-                                        <th data-table-sort>Status</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody class="text-nowrap">
-                                    <!-- Order 1 -->
-                                    <tr>
-                                        <td>#ORD-1023</td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">John Carter</h5>
-                                            <span class="text-muted fs-xs">john&#64;example.com</span>
-                                        </td>
-                                        <td>12 Nov 2025</td>
-                                        <td>$249.00</td>
-                                        <td>Credit Card</td>
-                                        <td>
-                                            <span class="badge bg-success-subtle text-success"> Completed
-                                            </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Order 2 -->
-                                    <tr>
-                                        <td>#ORD-1022</td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Emma Wilson</h5>
-                                            <span class="text-muted fs-xs">emma&#64;example.com</span>
-                                        </td>
-                                        <td>12 Nov 2025</td>
-                                        <td>$179.00</td>
-                                        <td>UPI</td>
-                                        <td>
-                                            <span class="badge bg-warning-subtle text-warning"> Pending </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Order 3 -->
-                                    <tr>
-                                        <td>#ORD-1021</td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Michael Harris</h5>
-                                            <span class="text-muted fs-xs">michael&#64;example.com</span>
-                                        </td>
-                                        <td>11 Nov 2025</td>
-                                        <td>$329.00</td>
-                                        <td>PayPal</td>
-                                        <td>
-                                            <span class="badge bg-success-subtle text-success"> Completed
-                                            </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Order 4 -->
-                                    <tr>
-                                        <td>#ORD-1020</td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Sophia Turner</h5>
-                                            <span class="text-muted fs-xs">sophia&#64;example.com</span>
-                                        </td>
-                                        <td>11 Nov 2025</td>
-                                        <td>$125.00</td>
-                                        <td>Debit Card</td>
-                                        <td>
-                                            <span class="badge bg-danger-subtle text-danger"> Cancelled </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Order 5 -->
-                                    <tr>
-                                        <td>#ORD-1019</td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Chris Evans</h5>
-                                            <span class="text-muted fs-xs">chris&#64;example.com</span>
-                                        </td>
-                                        <td>10 Nov 2025</td>
-                                        <td>$560.00</td>
-                                        <td>Credit Card</td>
-                                        <td>
-                                            <span class="badge bg-success-subtle text-success"> Completed
-                                            </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Order 6 -->
-                                    <tr>
-                                        <td>#ORD-1018</td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Ava Mitchell</h5>
-                                            <span class="text-muted fs-xs">ava&#64;example.com</span>
-                                        </td>
-                                        <td>10 Nov 2025</td>
-                                        <td>$98.00</td>
-                                        <td>Cash</td>
-                                        <td>
-                                            <span class="badge bg-warning-subtle text-warning"> Pending </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Order 7 -->
-                                    <tr>
-                                        <td>#ORD-1017</td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Liam Parker</h5>
-                                            <span class="text-muted fs-xs">liam&#64;example.com</span>
-                                        </td>
-                                        <td>09 Nov 2025</td>
-                                        <td>$412.00</td>
-                                        <td>Net Banking</td>
-                                        <td>
-                                            <span class="badge bg-success-subtle text-success"> Completed
-                                            </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Order 8 -->
-                                    <tr>
-                                        <td>#ORD-1016</td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Isabella Rose</h5>
-                                            <span class="text-muted fs-xs">isabella&#64;example.com</span>
-                                        </td>
-                                        <td>09 Nov 2025</td>
-                                        <td>$255.00</td>
-                                        <td>Credit Card</td>
-                                        <td>
-                                            <span class="badge bg-danger-subtle text-danger"> Failed </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Order 9 -->
-                                    <tr>
-                                        <td>#ORD-1015</td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Oliver Brown</h5>
-                                            <span class="text-muted fs-xs">oliver&#64;example.com</span>
-                                        </td>
-                                        <td>08 Nov 2025</td>
-                                        <td>$720.00</td>
-                                        <td>UPI</td>
-                                        <td>
-                                            <span class="badge bg-success-subtle text-success"> Completed
-                                            </span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Order 10 -->
-                                    <tr>
-                                        <td>#ORD-1014</td>
-                                        <td>
-                                            <h5 class="m-0 fs-base">Charlotte Green</h5>
-                                            <span class="text-muted fs-xs">charlotte&#64;example.com</span>
-                                        </td>
-                                        <td>08 Nov 2025</td>
-                                        <td>$138.00</td>
-                                        <td>PayPal</td>
-                                        <td>
-                                            <span class="badge bg-warning-subtle text-warning"> Pending </span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="card-footer border-0">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div data-table-pagination-info="orders"></div>
-                            <div data-table-pagination></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- end col-->
-
-            <div class="col-xxl-7">
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="card card-h-100">
-                            <div class="card-header justify-content-between">
-                                <h4 class="card-title">Revenue By Locations</h4>
-                                <div class="dropdown ms-auto">
-                                    <a href="#" class="btn btn-sm btn-default btn-icon" data-bs-toggle="dropdown">
-                                        <i class="ti ti-dots-vertical fs-lg"></i>
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li>
-                                            <a class="dropdown-item" href="#"> <i class="ti ti-map me-2"></i>
-                                                View Full Map </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="#"> <i class="ti ti-download me-2"></i>
-                                                Export Revenue Data </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="#"> <i class="ti ti-filter-2 me-2"></i>
-                                                Filter By Region </a>
-                                        </li>
-                                        <li>
-                                            <hr class="dropdown-divider" />
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item text-danger" href="#"> <i
-                                                    class="ti ti-trash me-2"></i> Remove Widget </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div class="card-body pt-1">
-                                <div id="revenue-by-location" style="height: 206px"></div>
-
-                                <div class="mt-3">
-                                    <div class="p-2 mb-3 border-dashed border rounded">
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-lg flex-shrink-0 me-2">
-                                                <span class="avatar-title bg-warning-subtle rounded-circle fs-1">
-                                                    <i class="ti ti-medal text-warning"></i>
-                                                </span>
-                                            </div>
-                                            <div class="flex-gow-1">
-                                                <h5 class="mb-0 fw-semibold">Congratulations !...</h5>
-                                                <p class="mb-0 text-muted">You've just hit a new record..</p>
-                                            </div>
-                                            <div class="ms-auto">
-                                                <h4 class="fs-16 mt-1 mb-0">25.9k</h4>
-                                                <span class="text-muted fw-semibold fs-12">ORDERS</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="d-flex align-items-center mb-2 gap-2">
-                                        <i class="ti ti-circle text-info fs-md"></i>
-                                        <div>United States</div>
-                                        <p class="mb-0 ms-auto"><span class="fw-semibold">$48.6k</span> <span
-                                                class="text-muted">Revenue</span></p>
-                                    </div>
-
-                                    <div class="d-flex align-items-center mb-2 gap-2">
-                                        <i class="ti ti-circle text-primary fs-md"></i>
-                                        <div>United Kingdom</div>
-                                        <p class="mb-0 ms-auto"><span class="fw-semibold">$26.4k</span> <span
-                                                class="text-muted">Revenue</span></p>
-                                    </div>
-
-                                    <div class="d-flex align-items-center gap-2">
-                                        <i class="ti ti-circle text-secondary fs-md"></i>
-                                        <div>Australia</div>
-                                        <p class="mb-0 ms-auto"><span class="fw-semibold">$18.9k</span> <span
-                                                class="text-muted">Revenue</span></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- end card-body-->
-                        </div>
-                        <!-- end card-->
-                    </div>
-                    <!-- end col-->
-
-                    <div class="col-lg-6">
-                        <div class="card card-h-100">
-                            <div class="card-header justify-content-between">
-                                <h4 class="card-title">Recent Activity</h4>
-                                <div class="dropdown ms-auto">
-                                    <a href="#" class="btn btn-sm btn-default btn-icon" data-bs-toggle="dropdown">
-                                        <i class="ti ti-dots-vertical fs-lg"></i>
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li>
-                                            <a class="dropdown-item" href="#"> <i class="ti ti-activity me-2"></i>
-                                                View Activity Log </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="#"> <i class="ti ti-filter-2 me-2"></i>
-                                                Filter Activities </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="#"> <i class="ti ti-download me-2"></i>
-                                                Export Logs </a>
-                                        </li>
-                                        <li>
-                                            <hr class="dropdown-divider" />
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item text-danger" href="#"> <i
-                                                    class="ti ti-trash me-2"></i> Clear Activity </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div class="card-body" data-simplebar style="max-height: 426px">
-                                <div class="timeline timeline-users">
-                                    <!-- Event 1 -->
-                                    <div class="timeline-item d-flex align-items-stretch">
-                                        <div class="timeline-dot text-bg-primary">
-                                            <i class="ti ti-shopping-cart fs-md"></i>
-                                        </div>
-                                        <div class="timeline-content ps-3 pb-4">
-                                            <h5 class="mb-1">New Orders Synced from Storefront</h5>
-                                            <p class="mb-1 text-muted">1,250 new customer orders were
-                                                successfully imported from the online store.</p>
-                                            <span class="text-primary fw-semibold">By Olivia Green</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Event 2 -->
-                                    <div class="timeline-item d-flex align-items-stretch">
-                                        <div class="timeline-dot text-bg-success">
-                                            <i class="ti ti-credit-card fs-md"></i>
-                                        </div>
-                                        <div class="timeline-content ps-3 pb-4">
-                                            <h5 class="mb-1">Payment Gateway Integration Updated</h5>
-                                            <p class="mb-1 text-muted">Stripe API upgraded to support faster
-                                                settlements and improved security tokens.</p>
-                                            <span class="text-primary fw-semibold">By James Parker</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Event 3 -->
-                                    <div class="timeline-item d-flex align-items-stretch">
-                                        <div class="timeline-dot text-bg-warning">
-                                            <i class="ti ti-package fs-md"></i>
-                                        </div>
-                                        <div class="timeline-content ps-3 pb-4">
-                                            <h5 class="mb-1">Inventory Levels Auto-Synced</h5>
-                                            <p class="mb-1 text-muted">All product quantities were updated based
-                                                on the latest warehouse data.</p>
-                                            <span class="text-primary fw-semibold">By Sophia Lee</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Event 4 -->
-                                    <div class="timeline-item d-flex align-items-stretch">
-                                        <div class="timeline-dot text-bg-info">
-                                            <i class="ti ti-user fs-md"></i>
-                                        </div>
-                                        <div class="timeline-content ps-3 pb-4">
-                                            <h5 class="mb-1">New Vendor Accounts Approved</h5>
-                                            <p class="mb-1 text-muted">Five new seller accounts were verified
-                                                and added to the marketplace.</p>
-                                            <span class="text-primary fw-semibold">By Liam Johnson</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Event 5 -->
-                                    <div class="timeline-item d-flex align-items-stretch">
-                                        <div class="timeline-dot text-bg-danger">
-                                            <i class="ti ti-alert-circle fs-md"></i>
-                                        </div>
-                                        <div class="timeline-content ps-3 pb-4">
-                                            <h5 class="mb-1">Refund Requests Reviewed</h5>
-                                            <p class="mb-1 text-muted">27 refund claims were processed
-                                                successfully with zero pending disputes.</p>
-                                            <span class="text-primary fw-semibold">By Ethan Miller</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Event 6 -->
-                                    <div class="timeline-item d-flex align-items-stretch">
-                                        <div class="timeline-dot text-bg-secondary">
-                                            <i class="ti ti-speakerphone fs-md"></i>
-                                        </div>
-                                        <div class="timeline-content ps-3">
-                                            <h5 class="mb-1">Summer Campaign Launched</h5>
-                                            <p class="mb-1 text-muted">The “Summer Deals 2025” campaign is now
-                                                live across all marketing channels.</p>
-                                            <span class="text-primary fw-semibold">By Ava Mitchell</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- end timeline -->
-                            </div>
-                            <!-- end slimscroll -->
-                        </div>
-                        <!-- end card-->
-                    </div>
-                    <!-- end col -->
-                </div>
-            </div>
-        </div>
-        <!-- end row -->
     </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Order Summary</p>
+                    <div class="analytics-kpi-value" id="kpi-orders">{{ number_format($activeData['summary']['orders']) }}</div>
+                    <div class="analytics-kpi-sub text-muted">Growth <span id="kpi-orders-growth">{{ $activeData['summary']['growth']['orders'] }}</span>% vs previous period</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Sales (Total)</p>
+                    <div class="analytics-kpi-value" id="kpi-total">BDT {{ number_format($activeData['summary']['order_total'], 2) }}</div>
+                    <div class="analytics-kpi-sub text-muted">Revenue growth <span id="kpi-revenue-growth">{{ $activeData['summary']['growth']['revenue'] }}</span>%</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Cart Subtotal</p>
+                    <div class="analytics-kpi-value" id="kpi-subtotal">BDT {{ number_format($activeData['summary']['subtotal'], 2) }}</div>
+                    <div class="analytics-kpi-sub text-muted">AOV: <span id="kpi-aov">{{ number_format($activeData['summary']['aov'], 2) }}</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Cart Delivery</p>
+                    <div class="analytics-kpi-value" id="kpi-delivery">BDT {{ number_format($activeData['summary']['delivery_total'], 2) }}</div>
+                    <div class="analytics-kpi-sub text-muted">Cart orders: <span id="kpi-cart-orders">{{ number_format($activeData['summary']['cart_orders']) }}</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-xxl-8">
+            <div class="card h-100">
+                <div class="card-header justify-content-between">
+                    <h4 class="card-title mb-0">Product-Based Sales & Delivery Trend</h4>
+                    <span class="badge badge-soft-primary text-uppercase" id="active-range-label">{{ $rangeLabels[$activeRange] }}</span>
+                </div>
+                <div class="card-body">
+                    <div id="orders-trend-chart" class="analytics-chart-lg"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xxl-4">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Order Participation</h4>
+                </div>
+                <div class="card-body">
+                    <div id="status-chart" class="analytics-chart-md"></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Delivery Participation</h4>
+                </div>
+                <div class="card-body">
+                    <div id="delivery-chart" class="analytics-chart-md"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-xxl-8">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Product Participation (By Ordered Quantity)</h4>
+                </div>
+                <div class="card-body">
+                    <div id="product-chart" class="analytics-chart-md"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xxl-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Quality Check & Advanced Metrics</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Delivered Participation</span>
+                            <span id="metric-delivered-rate">{{ $activeData['summary']['delivered_rate'] }}%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" id="metric-delivered-progress" role="progressbar" style="width: {{ $activeData['summary']['delivered_rate'] }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Cancelled Participation</span>
+                            <span id="metric-cancelled-rate">{{ $activeData['summary']['cancelled_rate'] }}%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-danger" id="metric-cancelled-progress" role="progressbar" style="width: {{ $activeData['summary']['cancelled_rate'] }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Average Items / Order</span>
+                            <span id="metric-items-per-order">{{ $activeData['summary']['avg_items_per_order'] }}</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Quality Score (Avg Stars)</span>
+                        <span>{{ number_format($qualityCheck['avg_stars'], 1) }}/5</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Positive Review Rate</span>
+                        <span>{{ $qualityCheck['positive_rate'] }}%</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Active Products</span>
+                        <span>{{ number_format($qualityCheck['active_products']) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Low Stock (<=5)</span>
+                        <span>{{ number_format($qualityCheck['low_stock_products']) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12 col-xl-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Top Products (All Time)</h4>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive analytics-table-wrap">
+                        <table class="table table-custom table-hover mb-0">
+                            <thead class="bg-light bg-opacity-25">
+                                <tr>
+                                    <th>Product</th>
+                                    <th class="text-end">Quantity</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($topProducts as $product)
+                                    <tr>
+                                        <td>{{ $product->product_name }}</td>
+                                        <td class="text-end">{{ number_format($product->total_quantity) }}</td>
+                                        <td class="text-end">BDT {{ number_format($product->total_amount, 2) }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="3" class="text-center py-3 text-muted">No product sales data yet.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Recent Orders</h4>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive analytics-table-wrap">
+                        <table class="table table-custom table-hover mb-0">
+                            <thead class="bg-light bg-opacity-25">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Customer</th>
+                                    <th>City</th>
+                                    <th class="text-end">Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($recentOrders as $order)
+                                    <tr>
+                                        <td>#{{ $order->id }}</td>
+                                        <td>{{ $order->name }}</td>
+                                        <td class="text-capitalize">{{ $order->city }}</td>
+                                        <td class="text-end">BDT {{ number_format($order->total, 2) }}</td>
+                                        <td>
+                                            <span class="badge badge-soft-{{ statusColor($order->status) }} text-capitalize">{{ $order->status }}</span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center py-3 text-muted">No orders found.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const rangeLabels = {
+            weekly: 'Weekly',
+            monthly: 'Monthly',
+            weekend: 'Weekend',
+            yearly: 'Yearly',
+        };
+        const dataset = @json($rangeAnalytics);
+        let activeRange = @json($activeRange);
+
+        const el = {
+            orders: document.getElementById('kpi-orders'),
+            ordersGrowth: document.getElementById('kpi-orders-growth'),
+            total: document.getElementById('kpi-total'),
+            revenueGrowth: document.getElementById('kpi-revenue-growth'),
+            subtotal: document.getElementById('kpi-subtotal'),
+            aov: document.getElementById('kpi-aov'),
+            delivery: document.getElementById('kpi-delivery'),
+            cartOrders: document.getElementById('kpi-cart-orders'),
+            deliveredRate: document.getElementById('metric-delivered-rate'),
+            cancelledRate: document.getElementById('metric-cancelled-rate'),
+            deliveredProgress: document.getElementById('metric-delivered-progress'),
+            cancelledProgress: document.getElementById('metric-cancelled-progress'),
+            itemsPerOrder: document.getElementById('metric-items-per-order'),
+            activeRangeLabel: document.getElementById('active-range-label'),
+        };
+
+        const formatInt = (value) => new Intl.NumberFormat().format(value || 0);
+        const formatMoney = (value) => `BDT ${new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value || 0)}`;
+        const seriesOrZero = (arr) => (arr && arr.length ? arr : [0]);
+        const labelsOrNA = (arr) => (arr && arr.length ? arr : ['N/A']);
+
+        const chartTheme = {
+            primary: '#4f46e5',
+            success: '#16a34a',
+            warning: '#d97706',
+            danger: '#dc2626',
+            slate: '#475569',
+            info: '#0284c7',
+        };
+
+        const trendChart = new ApexCharts(document.querySelector('#orders-trend-chart'), {
+            chart: { type: 'line', height: 360, toolbar: { show: false } },
+            stroke: { width: [3, 3, 2], curve: 'smooth', dashArray: [0, 0, 6] },
+            series: [],
+            colors: [chartTheme.primary, chartTheme.success, chartTheme.warning],
+            xaxis: { categories: [] },
+            yaxis: [
+                { title: { text: 'Amount (BDT)' } },
+                { opposite: true, title: { text: 'Orders' } }
+            ],
+            dataLabels: { enabled: false },
+            legend: { position: 'top' },
+            tooltip: { shared: true, intersect: false }
+        });
+
+        const statusChart = new ApexCharts(document.querySelector('#status-chart'), {
+            chart: { type: 'donut', height: 300 },
+            series: [],
+            labels: [],
+            colors: [chartTheme.warning, chartTheme.info, chartTheme.primary, chartTheme.success, chartTheme.danger],
+            legend: { position: 'bottom' },
+            dataLabels: { enabled: true },
+        });
+
+        const deliveryChart = new ApexCharts(document.querySelector('#delivery-chart'), {
+            chart: { type: 'bar', height: 300, toolbar: { show: false } },
+            plotOptions: { bar: { horizontal: true, borderRadius: 4 } },
+            series: [{ name: 'Orders', data: [] }],
+            xaxis: { categories: [] },
+            colors: [chartTheme.slate],
+            dataLabels: { enabled: false },
+        });
+
+        const productChart = new ApexCharts(document.querySelector('#product-chart'), {
+            chart: { type: 'bar', height: 300, toolbar: { show: false } },
+            plotOptions: { bar: { horizontal: true, borderRadius: 4 } },
+            series: [{ name: 'Quantity', data: [] }],
+            xaxis: { categories: [] },
+            colors: [chartTheme.primary],
+            dataLabels: { enabled: false },
+        });
+
+        trendChart.render();
+        statusChart.render();
+        deliveryChart.render();
+        productChart.render();
+
+        function applyRange(rangeKey) {
+            const data = dataset[rangeKey] || dataset.monthly;
+            const summary = data.summary || {};
+            const trend = data.trend || {};
+            const status = data.status_participation || {};
+            const delivery = data.delivery_participation || {};
+            const products = data.product_participation || [];
+
+            el.orders.textContent = formatInt(summary.orders);
+            el.ordersGrowth.textContent = summary.growth ? summary.growth.orders : 0;
+            el.total.textContent = formatMoney(summary.order_total);
+            el.revenueGrowth.textContent = summary.growth ? summary.growth.revenue : 0;
+            el.subtotal.textContent = formatMoney(summary.subtotal);
+            el.aov.textContent = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(summary.aov || 0);
+            el.delivery.textContent = formatMoney(summary.delivery_total);
+            el.cartOrders.textContent = formatInt(summary.cart_orders);
+            el.deliveredRate.textContent = `${summary.delivered_rate || 0}%`;
+            el.cancelledRate.textContent = `${summary.cancelled_rate || 0}%`;
+            el.deliveredProgress.style.width = `${summary.delivered_rate || 0}%`;
+            el.cancelledProgress.style.width = `${summary.cancelled_rate || 0}%`;
+            el.itemsPerOrder.textContent = summary.avg_items_per_order || 0;
+            el.activeRangeLabel.textContent = rangeLabels[rangeKey] || 'Monthly';
+
+            trendChart.updateOptions({
+                xaxis: { categories: labelsOrNA(trend.labels) },
+                series: [
+                    { name: 'Sales (Total)', type: 'line', data: seriesOrZero(trend.revenue) },
+                    { name: 'Delivery Charge', type: 'line', data: seriesOrZero(trend.delivery) },
+                    { name: 'Orders', type: 'line', data: seriesOrZero(trend.orders), yAxisIndex: 1 },
+                ],
+            });
+
+            statusChart.updateOptions({
+                labels: labelsOrNA(status.labels),
+                series: seriesOrZero(status.series),
+            });
+
+            deliveryChart.updateOptions({
+                xaxis: { categories: labelsOrNA(delivery.labels) },
+                series: [{ name: 'Orders', data: seriesOrZero(delivery.series) }],
+            });
+
+            productChart.updateOptions({
+                xaxis: { categories: products.length ? products.map(item => item.name) : ['N/A'] },
+                series: [{ name: 'Quantity', data: products.length ? products.map(item => item.quantity) : [0] }],
+            });
+
+            document.querySelectorAll('.range-filter-btn').forEach((button) => {
+                const isActive = button.dataset.range === rangeKey;
+                button.classList.toggle('btn-primary', isActive);
+                button.classList.toggle('btn-outline-primary', !isActive);
+            });
+
+            const url = new URL(window.location.href);
+            url.searchParams.set('range', rangeKey);
+            window.history.replaceState({}, '', url);
+        }
+
+        document.querySelectorAll('.range-filter-btn').forEach((button) => {
+            button.addEventListener('click', function () {
+                activeRange = this.dataset.range;
+                applyRange(activeRange);
+            });
+        });
+
+        applyRange(activeRange);
+    });
+</script>
+@endpush
