@@ -12,7 +12,7 @@
     <meta name="author" content="Hassh" />
 
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}" />
+    <link rel="shortcut icon" href="{{ asset('images/favicon.png') }}" />
 
 
     <!-- Vector Maps css -->
