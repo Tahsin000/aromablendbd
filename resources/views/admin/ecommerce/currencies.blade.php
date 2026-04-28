@@ -66,7 +66,6 @@
                         <th>Name</th>
                         <th>Status</th>
                         <th>Created</th>
-                        <th class="text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -92,13 +91,6 @@
                             </form>
                         </td>
                         <td>{{ $currency->created_at->format('d M, Y') }}</td>
-                        <td>
-                            <div class="d-flex justify-content-center gap-1">
-                                <a href="{{ route('admin.ecommerce.currency-edit', $currency) }}" class="btn btn-default btn-icon btn-sm" title="Edit" data-bs-toggle="tooltip" data-bs-placement="top">
-                                    <i class="ti ti-edit fs-lg"></i>
-                                </a>
-                            </div>
-                        </td>
                     </tr>
                     @empty
                     <tr>
