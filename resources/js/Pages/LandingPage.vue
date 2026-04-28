@@ -12,14 +12,14 @@
     </div>
 
     <!-- Success Toast -->
-    <Transition enter-active-class="transition ease-out duration-300" enter-from-class="opacity-0 translate-y-4" enter-to-class="opacity-100 translate-y-0"
-                leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-4">
-        <div v-if="showToast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-            <div class="flex items-center gap-3 bg-green-600 text-white px-5 py-3.5 rounded-2xl shadow-2xl">
+    <Transition enter-active-class="transition ease-out duration-300" enter-from-class="opacity-0 -translate-y-4" enter-to-class="opacity-100 translate-y-0"
+                leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 -translate-y-4">
+        <div v-if="showToast" class="fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 z-50 px-3 sm:px-0 w-full sm:w-auto">
+            <div class="flex items-center gap-3 bg-green-600 text-white px-5 py-3.5 rounded-2xl shadow-2xl mx-auto w-full sm:w-auto max-w-xl">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                <span class="font-semibold text-sm">{{ toastMessage }}</span>
+                <span class="font-semibold text-sm break-words">{{ toastMessage }}</span>
             </div>
         </div>
     </Transition>
