@@ -1,3 +1,5 @@
+@php($defaultAvatar = asset('images/default-person.png'))
+
 <header class="app-topbar">
     <div class="container-fluid topbar-menu">
         <div class="d-flex align-items-center gap-2">
@@ -83,8 +85,8 @@
                 <div class="dropdown">
                     <a class="topbar-link dropdown-toggle drop-arrow-none px-2" data-bs-toggle="dropdown"
                         href="#!" aria-haspopup="false" aria-expanded="false">
-                        <img src="{{ asset('assets/images/users/user-1.jpg') }}" width="32"
-                            class="rounded-circle me-lg-2 d-flex" alt="user-image" />
+                        <img src="{{ $defaultAvatar }}" width="32"
+                            class="rounded-circle me-lg-2 d-flex" alt="default admin avatar" />
                         <div class="d-lg-flex align-items-center gap-1 d-none">
                             <span>
                                 <h5 class="my-0 lh-1 pro-username">{{ auth()->user()->name ?? 'Admin' }}</h5>

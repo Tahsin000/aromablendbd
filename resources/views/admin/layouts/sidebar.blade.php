@@ -1,3 +1,5 @@
+@php($defaultAvatar = asset('images/default-person.png'))
+
 <!-- Sidebar -->
 <div class="sidenav-menu">
     <!-- Brand Logo -->
@@ -28,7 +30,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <a href="#!" class="link-reset">
-                        <img src="{{ asset('assets/images/users/user-1.jpg') }}" alt="user-image"
+                        <img src="{{ $defaultAvatar }}" alt="default admin avatar"
                             class="rounded-circle mb-2 avatar-md" />
                         <span class="sidenav-user-name fw-bold">{{ auth()->user()->name ?? 'Admin' }}</span>
                         <span class="fs-12 fw-semibold">Admin</span>
