@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\FrontendCache;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class EcommerceController extends Controller
 {
@@ -72,7 +72,7 @@ class EcommerceController extends Controller
         $admin = User::where('is_admin', true)->firstOrFail();
         $admin->updateSiteSettings($section, $fields);
 
-        Cache::forget('site_settings');
+        FrontendCache::flushSiteSettings();
 
         return back()->with('success', 'Content updated successfully.');
     }

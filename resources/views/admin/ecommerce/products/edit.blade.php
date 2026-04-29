@@ -68,37 +68,30 @@
                     </div>
                     <div class="card-body">
                         @if($product->images->isNotEmpty())
-                            <p class="text-muted small mb-2">Existing images. Click <strong>Set Primary</strong> to make one the thumbnail. Click <strong>Delete</strong> to remove immediately.</p>
+                            <p class="text-muted small mb-2">Existing images. Select one as <strong>Primary</strong>, then click <strong>Update Product</strong>. Delete removes an image immediately.</p>
                             <div class="d-flex flex-wrap gap-3 mb-4" id="existing-images">
+                                @php
+                                    $defaultPrimaryId = old('primary_image') ?? optional($product->images->firstWhere('is_primary', true))->id;
+                                @endphp
                                 @foreach($product->images as $img)
                                 <div class="card border text-center position-relative" style="width:130px;" id="img-card-{{ $img->id }}">
                                     <img src="{{ $img->url }}" class="card-img-top" style="height:90px;object-fit:cover;" />
                                     <div class="card-body p-1 d-flex flex-column gap-1">
-                                        @if(!$img->is_primary)
-                                        <form method="POST" action="{{ route('admin.ecommerce.products.update', $product) }}" class="m-0">
-                                            @csrf @method('PUT')
-                                            <input type="hidden" name="name" value="{{ $product->name }}">
-                                            <input type="hidden" name="price" value="{{ $product->price }}">
-                                            <input type="hidden" name="original_price" value="{{ $product->original_price }}">
-                                            <input type="hidden" name="stock" value="{{ $product->stock }}">
-                                            <input type="hidden" name="primary_image" value="{{ $img->id }}">
-                                            <button type="submit" class="btn btn-soft-primary btn-xs w-100" style="font-size:11px;">
-                                                <i class="ti ti-star me-1"></i>Set Primary
-                                            </button>
-                                        </form>
-                                        @else
-                                            <span class="badge bg-success w-100" style="font-size:11px;"><i class="ti ti-star-filled me-1"></i>Primary</span>
-                                        @endif
-
-                                        <form method="POST"
-                                              action="{{ route('admin.ecommerce.products.image.destroy', [$product, $img]) }}"
-                                              class="m-0 delete-image-form">
-                                            @csrf @method('DELETE')
-                                            <button type="button" class="btn btn-soft-danger btn-xs w-100 delete-img-btn" style="font-size:11px;"
-                                                    data-img-id="{{ $img->id }}">
-                                                <i class="ti ti-trash me-1"></i>Delete
-                                            </button>
-                                        </form>
+                                        <label class="btn btn-soft-primary btn-xs w-100 mb-0 d-flex align-items-center justify-content-center gap-1" style="font-size:11px; cursor:pointer;">
+                                            <input type="radio"
+                                                   class="form-check-input m-0"
+                                                   name="primary_image"
+                                                   value="{{ $img->id }}"
+                                                   {{ (string) $defaultPrimaryId === (string) $img->id ? 'checked' : '' }}>
+                                            <span>Primary</span>
+                                        </label>
+                                        <button type="button"
+                                                class="btn btn-soft-danger btn-xs w-100 delete-img-btn"
+                                                style="font-size:11px;"
+                                                data-delete-url="{{ route('admin.ecommerce.products.image.destroy', [$product, $img]) }}"
+                                                data-img-id="{{ $img->id }}">
+                                            <i class="ti ti-trash me-1"></i>Delete
+                                        </button>
                                     </div>
                                 </div>
                                 @endforeach
@@ -225,18 +218,25 @@
                     <a href="{{ route('admin.ecommerce.products.index') }}" class="btn btn-secondary">Cancel</a>
                 </div>
             </div>
-        </div>
-    </form>
+</div>
+</form>
+
+<form id="delete-image-form" method="POST" class="d-none">
+    @csrf
+    @method('DELETE')
+</form>
 </div>
 @endsection
 
 @push('scripts')
 <script>
-// Per-image delete with confirmation
+// Per-image delete with confirmation (standalone form avoids nested-form bugs)
 document.querySelectorAll('.delete-img-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
         if (!confirm('Delete this image? This cannot be undone.')) return;
-        this.closest('.delete-image-form').submit();
+        const form = document.getElementById('delete-image-form');
+        form.action = this.getAttribute('data-delete-url');
+        form.submit();
     });
 });
 

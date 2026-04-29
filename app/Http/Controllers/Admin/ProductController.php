@@ -9,6 +9,7 @@ use App\Models\ProductTag;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
@@ -124,15 +125,23 @@ class ProductController extends Controller
             'new_images'     => 'nullable|array',
             'new_images.*'   => 'image|mimes:jpeg,png,jpg,webp|max:2048',
             'delete_images'  => 'nullable|array',
-            'delete_images.*'=> 'integer|exists:product_images,id',
-            'primary_image'  => 'nullable|integer|exists:product_images,id',
+            'delete_images.*'=> [
+                'integer',
+                Rule::exists('product_images', 'id')->where(fn ($query) => $query->where('product_id', $product->id)),
+            ],
+            'primary_image'  => [
+                'nullable',
+                'integer',
+                Rule::exists('product_images', 'id')->where(fn ($query) => $query->where('product_id', $product->id)),
+            ],
             'tags'           => 'nullable|array',
             'tags.*.label'   => 'required_with:tags|string|max:255',
             'tags.*.color'   => 'nullable|in:green,red,amber,blue,purple',
         ]);
 
         $validated['slug']         = Str::slug($validated['slug'] ?? $validated['name']);
-        $validated['is_active']    = ($validated['is_active'] ?? '0') === '1';
+        // Preserve current status when a partial update payload omits is_active.
+        $validated['is_active']    = ($validated['is_active'] ?? ($product->is_active ? '1' : '0')) === '1';
         $validated['sort_order']   = $validated['sort_order'] ?? 0;
         $validated['review_count'] = $validated['review_count'] ?? 0;
 
@@ -171,16 +180,18 @@ class ProductController extends Controller
                 }
             }
 
-            // Replace all tags
-            $product->tags()->delete();
-            if (!empty($validated['tags'])) {
-                foreach ($validated['tags'] as $i => $tag) {
-                    ProductTag::create([
-                        'product_id' => $product->id,
-                        'label'      => $tag['label'],
-                        'color'      => $tag['color'] ?? 'green',
-                        'sort_order' => $i + 1,
-                    ]);
+            // Replace tags only when tags are present in this request payload.
+            if (array_key_exists('tags', $validated)) {
+                $product->tags()->delete();
+                if (!empty($validated['tags'])) {
+                    foreach ($validated['tags'] as $i => $tag) {
+                        ProductTag::create([
+                            'product_id' => $product->id,
+                            'label'      => $tag['label'],
+                            'color'      => $tag['color'] ?? 'green',
+                            'sort_order' => $i + 1,
+                        ]);
+                    }
                 }
             }
         });

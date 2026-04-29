@@ -7,14 +7,13 @@ use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\Review;
 use App\Models\User;
+use App\Support\FrontendCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
 class LandingPageController extends Controller
 {
-    private const ACTIVE_PRODUCTS_CACHE_KEY = 'active_products_v2';
-
     public function index()
     {
         $reviews = Review::active()
@@ -83,14 +82,14 @@ class LandingPageController extends Controller
 
     private function getSiteSettings(): array
     {
-        return Cache::remember('site_settings', now()->addHours(24), function (): array {
+        return Cache::remember(FrontendCache::SITE_SETTINGS_KEY, FrontendCache::SITE_SETTINGS_TTL_SECONDS, function (): array {
             return User::getSiteSettings();
         });
     }
 
     private function getActiveProducts(): array
     {
-        return Cache::remember(self::ACTIVE_PRODUCTS_CACHE_KEY, now()->addHours(6), function (): array {
+        return Cache::remember(FrontendCache::ACTIVE_PRODUCTS_KEY, FrontendCache::ACTIVE_PRODUCTS_TTL_SECONDS, function (): array {
             return Product::active()
                 ->with(['images', 'tags'])
                 ->orderBy('sort_order')

@@ -8,11 +8,11 @@
         <div class="flex-grow-1">
             <h4 class="page-main-title m-0">Orders</h4>
         </div>
-        <div>
+        {{-- <div>
             <a href="{{ route('admin.ecommerce.order-create') }}" class="btn btn-primary">
                 <i class="ti ti-plus me-1"></i> Add Order
             </a>
-        </div>
+        </div> --}}
     </div>
 
     @if(session('success'))
