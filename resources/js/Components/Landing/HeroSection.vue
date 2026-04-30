@@ -25,12 +25,12 @@
                     </p>
 
                     <!-- CTA buttons -->
-                    <div class="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start animate-fade-in-up mb-8" style="animation-delay: 0.4s">
-                        <a href="#products" class="group bg-green-600 hover:bg-green-700 text-white text-base sm:text-lg font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start animate-fade-in-up mb-8 w-full max-w-xs mx-auto sm:max-w-none sm:w-auto" style="animation-delay: 0.4s">
+                        <a href="#products" class="w-full sm:w-auto group bg-green-600 hover:bg-green-700 text-white text-base sm:text-lg font-semibold px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
                             {{ c.cta_primary }}
                             <svg class="w-5 h-5 group-hover:translate-y-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
                         </a>
-                        <a href="#offer" class="group bg-white hover:bg-gray-50 text-green-600 text-base sm:text-lg font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl border-2 border-green-600 hover:border-green-700 transition-all duration-300 flex items-center justify-center gap-2">
+                        <a href="#offer" class="w-full sm:w-auto group bg-white hover:bg-gray-50 text-green-600 text-base sm:text-lg font-semibold px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl border-2 border-green-600 hover:border-green-700 transition-all duration-300 flex items-center justify-center gap-2">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.149 3.66A2.25 2.25 0 009.568 3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 6l6 6"/></svg>
                             {{ c.cta_secondary }}
                         </a>
@@ -46,14 +46,14 @@
                 </div>
 
                 <!-- Right: Highlighted products slider -->
-                <div class="order-1 lg:order-2">
-                    <div class="relative max-w-sm sm:max-w-md lg:max-w-lg mx-auto">
+                <div class="order-1 lg:order-2 w-full px-4 sm:px-0 mb-6 lg:mb-0 flex justify-center">
+                    <div class="relative w-full max-w-[280px] sm:max-w-md lg:max-w-lg overflow-visible">
                         <!-- Glow ring -->
-                        <div class="absolute inset-4 bg-green-300 rounded-full opacity-20 blur-2xl animate-pulse"></div>
+                        <div class="absolute inset-0 bg-green-300 rounded-full opacity-20 blur-2xl animate-pulse"></div>
 
                         <!-- Slider card -->
                         <div v-if="currentProduct"
-                             class="relative bg-white rounded-3xl shadow-2xl overflow-hidden border border-green-100 cursor-pointer group animate-fade-in-up"
+                             class="relative bg-white rounded-3xl shadow-2xl overflow-hidden border border-green-100 cursor-pointer group animate-fade-in-up w-full"
                              @click="goToProduct">
                             <!-- Product image -->
                             <div class="relative h-48 sm:h-56 lg:h-64 bg-gradient-to-br from-green-100 to-emerald-100 overflow-hidden">
@@ -71,7 +71,7 @@
                                 </div>
                             </div>
                             <!-- Product info -->
-                            <div class="p-4">
+                            <div class="p-4 bg-white">
                                 <h3 class="font-bold text-gray-900 text-base">{{ currentProduct.name }}</h3>
                                 <p class="text-gray-500 text-sm mt-1 truncate">{{ currentProduct.desc }}</p>
                                 <span class="inline-block mt-2 text-xs text-green-600 font-semibold group-hover:underline">অর্ডার করুন →</span>
