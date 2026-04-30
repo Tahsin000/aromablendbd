@@ -10,11 +10,11 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         User::updateOrCreate(
-            ['email' => '123@gmail.com'],
+            ['email' => 'aromablendbd@gmail.com'],
             [
                 'name' => 'Admin',
-                'email' => '123@gmail.com',
-                'password' => bcrypt('123'),
+                'email' => 'aromablendbd@gmail.com',
+                'password' => bcrypt('password'),
                 'is_admin' => true,
             ]
         );
