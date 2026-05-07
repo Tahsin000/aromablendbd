@@ -3,6 +3,19 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    @if(config('services.google.analytics_id'))
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('services.google.analytics_id') }}"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', '{{ config('services.google.analytics_id') }}');
+        </script>
+    @endif
+
     <title>{{ config('app.name', 'Aroma Blend') }} - প্রাকৃতিক চা</title>
     <link rel="shortcut icon" href="{{ asset('images/favicon.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
