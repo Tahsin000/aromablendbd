@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services\ImageService;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -57,7 +58,7 @@ class Product extends Model
      */
     public function getThumbnailUrlAttribute(): string
     {
-        $primary = $this->images->firstWhere('is_primary', true) ?? $this->images->first();
+        $primary = $this->orderedImages()->first();
 
         if ($primary) {
             return ImageService::url($primary->image_path)
@@ -72,11 +73,13 @@ class Product extends Model
      */
     public function getImageUrlsAttribute(): array
     {
-        if ($this->images->isEmpty()) {
+        $ordered = $this->orderedImages();
+
+        if ($ordered->isEmpty()) {
             return [asset('images/product-d.png')];
         }
 
-        return $this->images->map(fn ($img) =>
+        return $ordered->map(fn ($img) =>
             ImageService::url($img->image_path) ?? asset('images/product-d.png')
         )->toArray();
     }
@@ -116,5 +119,34 @@ class Product extends Model
                 'color' => $t->color,
             ])->toArray(),
         ];
+    }
+
+    /**
+     * Frontend display order:
+     * 1) Primary image first
+     * 2) Remaining images by admin-defined sort_order
+     * 3) Stable tie-breaker by id
+     */
+    private function orderedImages(): EloquentCollection
+    {
+        $images = $this->relationLoaded('images')
+            ? $this->images
+            : $this->images()->get();
+
+        return $images
+            ->sort(function ($a, $b) {
+                if ((bool) $a->is_primary !== (bool) $b->is_primary) {
+                    return $a->is_primary ? -1 : 1;
+                }
+
+                $sortA = (int) ($a->sort_order ?? 0);
+                $sortB = (int) ($b->sort_order ?? 0);
+                if ($sortA !== $sortB) {
+                    return $sortA <=> $sortB;
+                }
+
+                return (int) $a->id <=> (int) $b->id;
+            })
+            ->values();
     }
 }

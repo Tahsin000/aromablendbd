@@ -66,6 +66,10 @@
                         <!-- Slider card -->
                         <div v-if="currentProduct"
                              class="relative bg-white rounded-3xl shadow-2xl overflow-hidden border border-green-100 cursor-pointer group animate-fade-in-up w-full"
+                             @touchstart.passive="onHeroTouchStart"
+                             @touchmove.passive="onHeroTouchMove"
+                             @touchend="onHeroTouchEnd"
+                             @touchcancel="onHeroTouchCancel"
                              @click="goToProduct">
                             <!-- Product image -->
                             <div class="relative h-48 sm:h-56 lg:h-64 bg-gradient-to-br from-green-100 to-emerald-100 overflow-hidden">
@@ -93,7 +97,7 @@
                         <!-- Slider dots -->
                         <div v-if="slides.length > 1" class="flex items-center justify-center gap-2 mt-4">
                             <button v-for="(_, i) in slides" :key="i"
-                                    @click.stop="currentSlide = i"
+                                    @click.stop="goToSlide(i)"
                                     :class="['w-2.5 h-2.5 rounded-full transition-all duration-300', currentSlide === i ? 'bg-green-600 w-6' : 'bg-green-300 hover:bg-green-400']"
                                     :aria-label="`Slide ${i + 1}`" />
                         </div>
@@ -137,7 +141,13 @@ const c = computed(() => ({
 }));
 
 const currentSlide = ref(0);
+const touchStartX = ref(0);
+const touchStartY = ref(0);
+const touchDeltaX = ref(0);
+const touchDeltaY = ref(0);
+const suppressCardClick = ref(false);
 let autoAdvanceTimer = null;
+let suppressCardClickTimer = null;
 
 const slides = computed(() => (
     Array.isArray(props.highlightedProducts)
@@ -156,6 +166,7 @@ function startAutoAdvance() {
     }
 }
 function stopAutoAdvance() { if (autoAdvanceTimer) { clearInterval(autoAdvanceTimer); autoAdvanceTimer = null; } }
+function restartAutoAdvance() { startAutoAdvance(); }
 
 onMounted(() => {
     currentSlide.value = 0;
@@ -170,9 +181,92 @@ watch(slides, () => {
 }, { deep: true });
 
 function goToProduct() {
+    if (suppressCardClick.value) {
+        return;
+    }
+
     if (currentProduct.value?.slug) {
         router.visit(`/product/${currentProduct.value.slug}`);
     }
+}
+
+function goToSlide(index) {
+    if (!slides.value.length) {
+        return;
+    }
+
+    currentSlide.value = index % slides.value.length;
+    restartAutoAdvance();
+}
+
+function nextSlide() {
+    if (slides.value.length <= 1) {
+        return;
+    }
+
+    currentSlide.value = (currentSlide.value + 1) % slides.value.length;
+    restartAutoAdvance();
+}
+
+function prevSlide() {
+    if (slides.value.length <= 1) {
+        return;
+    }
+
+    currentSlide.value = (currentSlide.value - 1 + slides.value.length) % slides.value.length;
+    restartAutoAdvance();
+}
+
+function onHeroTouchStart(event) {
+    if (!event.touches?.length) {
+        return;
+    }
+
+    touchStartX.value = event.touches[0].clientX;
+    touchStartY.value = event.touches[0].clientY;
+    touchDeltaX.value = 0;
+    touchDeltaY.value = 0;
+}
+
+function onHeroTouchMove(event) {
+    if (!event.touches?.length) {
+        return;
+    }
+
+    touchDeltaX.value = event.touches[0].clientX - touchStartX.value;
+    touchDeltaY.value = event.touches[0].clientY - touchStartY.value;
+}
+
+function onHeroTouchEnd() {
+    const absX = Math.abs(touchDeltaX.value);
+    const absY = Math.abs(touchDeltaY.value);
+    const swipeThreshold = 45;
+
+    if (absX > swipeThreshold && absX > absY) {
+        suppressCardClick.value = true;
+        if (suppressCardClickTimer) {
+            clearTimeout(suppressCardClickTimer);
+        }
+        suppressCardClickTimer = setTimeout(() => {
+            suppressCardClick.value = false;
+            suppressCardClickTimer = null;
+        }, 250);
+
+        if (touchDeltaX.value < 0) {
+            nextSlide();
+        } else {
+            prevSlide();
+        }
+    }
+
+    onHeroTouchCancel();
+}
+
+function onHeroTouchCancel() {
+    touchStartX.value = 0;
+    touchStartY.value = 0;
+    touchDeltaX.value = 0;
+    touchDeltaY.value = 0;
 }
 
 function formatBangla(n) {

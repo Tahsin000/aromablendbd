@@ -137,12 +137,20 @@
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <span class="text-gray-700 font-semibold text-base sm:text-lg">পরিমাণ:</span>
                             <div class="flex items-center gap-2 self-start sm:self-auto">
-                                <button @click="quantity = Math.max(1, quantity - 1)"
-                                        class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg border-2 border-gray-200 hover:border-green-600 transition-colors flex items-center justify-center text-lg sm:text-xl font-bold text-gray-600 hover:text-green-600">-</button>
-                                <input v-model.number="quantity" type="number" min="1"
-                                       class="w-14 sm:w-16 text-center text-lg sm:text-xl font-bold bg-white border-2 border-gray-200 rounded-lg py-1 focus:border-green-600 focus:ring-2 focus:ring-green-500 outline-none" />
-                                <button @click="quantity++"
-                                        class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg border-2 border-gray-200 hover:border-green-600 transition-colors flex items-center justify-center text-lg sm:text-xl font-bold text-gray-600 hover:text-green-600">+</button>
+                                <button @click="decreaseQuantity"
+                                        :disabled="isOutOfStock"
+                                        class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg border-2 border-gray-200 hover:border-green-600 transition-colors flex items-center justify-center text-lg sm:text-xl font-bold text-gray-600 hover:text-green-600 disabled:opacity-50 disabled:cursor-not-allowed">-</button>
+                                <input v-model.number="quantity"
+                                       @input="onQuantityInput"
+                                       @blur="onQuantityBlur"
+                                       type="number"
+                                       min="1"
+                                       :max="maxQuantityInput"
+                                       :disabled="isOutOfStock"
+                                       class="w-14 sm:w-16 text-center text-lg sm:text-xl font-bold bg-white border-2 border-gray-200 rounded-lg py-1 focus:border-green-600 focus:ring-2 focus:ring-green-500 outline-none disabled:bg-gray-100 disabled:text-gray-400" />
+                                <button @click="increaseQuantity"
+                                        :disabled="isOutOfStock"
+                                        class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg border-2 border-gray-200 hover:border-green-600 transition-colors flex items-center justify-center text-lg sm:text-xl font-bold text-gray-600 hover:text-green-600 disabled:opacity-50 disabled:cursor-not-allowed">+</button>
                             </div>
                         </div>
 
@@ -170,9 +178,10 @@
                     <!-- CTA Buttons -->
                     <div class="flex gap-3">
                         <button @click="goToCheckout"
-                                class="flex-1 bg-green-600 hover:bg-green-700 text-white text-base sm:text-lg font-bold py-3.5 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center gap-2">
+                                :disabled="isOutOfStock"
+                                class="flex-1 bg-green-600 hover:bg-green-700 text-white text-base sm:text-lg font-bold py-3.5 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none">
                             <ShoppingCartIcon class="w-4 h-4 sm:w-5 sm:h-5" />
-                            চেকআউটে যান
+                            {{ isOutOfStock ? 'Out of stock' : 'চেকআউটে যান' }}
                         </button>
                     </div>
 
@@ -257,6 +266,9 @@ const subtotal = computed(() => props.product.price * quantity.value);
 const discountAmount = computed(() => Math.round(subtotal.value * 0.20));
 const afterDiscount = computed(() => subtotal.value - discountAmount.value);
 const totalPrice = computed(() => afterDiscount.value);
+const availableStock = computed(() => Math.max(0, Number(props.product.stock || 0)));
+const maxQuantityInput = computed(() => (availableStock.value > 0 ? availableStock.value : 1));
+const isOutOfStock = computed(() => availableStock.value <= 0);
 
 // Stock indicators
 const stockPercent = computed(() => Math.min(100, (props.product.stock / 100) * 100));
@@ -303,7 +315,13 @@ function updateCountdown() {
 }
 
 function goToCheckout() {
-    window.location.href = `/checkout?product_id=${props.product.id}&quantity=${quantity.value}`;
+    if (isOutOfStock.value) {
+        return;
+    }
+
+    const safeQty = clampQuantity(quantity.value);
+    quantity.value = safeQty;
+    window.location.href = `/checkout?product_id=${props.product.id}&quantity=${safeQty}`;
 }
 
 function goToProduct(slug) {
@@ -311,10 +329,68 @@ function goToProduct(slug) {
     router.visit(`/product/${slug}`);
 }
 
+function clampQuantity(value) {
+    const max = availableStock.value;
+    if (max <= 0) {
+        return 0;
+    }
+
+    const parsed = Number.parseInt(String(value), 10);
+    if (!Number.isFinite(parsed)) {
+        return 1;
+    }
+
+    return Math.min(Math.max(1, parsed), max);
+}
+
+function decreaseQuantity() {
+    if (isOutOfStock.value) {
+        return;
+    }
+
+    quantity.value = clampQuantity(quantity.value - 1);
+}
+
+function increaseQuantity() {
+    if (isOutOfStock.value) {
+        return;
+    }
+
+    quantity.value = clampQuantity(quantity.value + 1);
+}
+
+function onQuantityInput() {
+    if (isOutOfStock.value) {
+        quantity.value = 0;
+        return;
+    }
+
+    quantity.value = clampQuantity(quantity.value);
+}
+
+function onQuantityBlur() {
+    if (isOutOfStock.value) {
+        quantity.value = 0;
+        return;
+    }
+
+    quantity.value = clampQuantity(quantity.value);
+}
+
 onMounted(() => {
+    if (Array.isArray(props.product.images) && props.product.images.length > 0 && props.product.image) {
+        const primaryIndex = props.product.images.findIndex((img) => img === props.product.image);
+        activeImage.value = primaryIndex >= 0 ? primaryIndex : 0;
+    } else {
+        activeImage.value = 0;
+    }
+
+    quantity.value = isOutOfStock.value ? 0 : clampQuantity(quantity.value);
+
     updateCountdown();
     timer = setInterval(updateCountdown, 1000);
 });
 onUnmounted(() => { if (timer) clearInterval(timer); });
 </script>
+
 

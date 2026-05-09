@@ -43,17 +43,20 @@
                             <!-- Qty selector -->
                             <div class="flex items-center gap-1.5">
                                 <span class="text-xs text-gray-600">পরিমাণ:</span>
-                                <button @click.stop="quantities[item.id] = Math.max(1, (quantities[item.id] || 1) - 1)"
-                                        class="w-7 h-7 rounded-lg border border-gray-200 hover:border-green-600 hover:bg-green-50 transition-colors flex items-center justify-center font-bold text-sm">-</button>
-                                <span class="w-7 text-center font-bold text-xs">{{ formatBangla(quantities[item.id] || 1) }}</span>
-                                <button @click.stop="quantities[item.id] = (quantities[item.id] || 1) + 1"
-                                        class="w-7 h-7 rounded-lg border border-gray-200 hover:border-green-600 hover:bg-green-50 transition-colors flex items-center justify-center font-bold text-sm">+</button>
+                                <button @click.stop="decrementItemQty(item)"
+                                        :disabled="itemMaxStock(item) <= 0"
+                                        class="w-7 h-7 rounded-lg border border-gray-200 hover:border-green-600 hover:bg-green-50 transition-colors flex items-center justify-center font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed">-</button>
+                                <span class="w-7 text-center font-bold text-xs">{{ formatBangla(getItemQty(item)) }}</span>
+                                <button @click.stop="incrementItemQty(item)"
+                                        :disabled="itemMaxStock(item) <= 0 || getItemQty(item) >= itemMaxStock(item)"
+                                        class="w-7 h-7 rounded-lg border border-gray-200 hover:border-green-600 hover:bg-green-50 transition-colors flex items-center justify-center font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed">+</button>
                             </div>
                             <!-- Checkout button -->
                             <button @click.stop="buyNow(item.id)"
-                                    class="w-full bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow hover:shadow-md">
+                                    :disabled="itemMaxStock(item) <= 0"
+                                    class="w-full bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed">
                                 <ShoppingBagIcon class="w-3.5 h-3.5" />
-                                চেকআউট করুন
+                                {{ itemMaxStock(item) <= 0 ? 'Out of stock' : 'চেকআউট করুন' }}
                             </button>
                         </div>
                     </div>
@@ -150,7 +153,17 @@ function goToSlide(dotIndex) {
 }
 
 function buyNow(productId) {
-    window.location.href = `/checkout?product_id=${productId}&quantity=${quantities.value[productId] || 1}`;
+    const product = normalizedProducts.value.find((p) => p.id === productId);
+    if (!product) {
+        return;
+    }
+
+    const safeQty = getItemQty(product);
+    if (safeQty <= 0) {
+        return;
+    }
+
+    window.location.href = `/checkout?product_id=${productId}&quantity=${safeQty}`;
 }
 
 function goToProduct(slug) {
@@ -210,6 +223,40 @@ function discountPercent(item) {
     if (!item.original_price || item.original_price === 0) return 0;
     return Math.round((1 - item.price / item.original_price) * 100);
 }
+
+function itemMaxStock(item) {
+    return Math.max(0, Number(item?.stock || 0));
+}
+
+function clampItemQty(item, value) {
+    const max = itemMaxStock(item);
+    if (max <= 0) {
+        return 0;
+    }
+
+    const parsed = Number.parseInt(String(value), 10);
+    if (!Number.isFinite(parsed)) {
+        return 1;
+    }
+
+    return Math.min(Math.max(1, parsed), max);
+}
+
+function getItemQty(item) {
+    const current = quantities.value[item.id] ?? 1;
+    const safe = clampItemQty(item, current);
+    quantities.value[item.id] = safe;
+    return safe;
+}
+
+function incrementItemQty(item) {
+    quantities.value[item.id] = clampItemQty(item, getItemQty(item) + 1);
+}
+
+function decrementItemQty(item) {
+    quantities.value[item.id] = clampItemQty(item, getItemQty(item) - 1);
+}
+
 function formatBangla(n) {
     const b = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
     return String(n).replace(/\d/g, d => b[d]);

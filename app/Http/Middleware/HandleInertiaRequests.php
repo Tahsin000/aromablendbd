@@ -2,7 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
+use App\Support\FrontendCache;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -37,6 +40,11 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
+            'site' => fn () => Cache::remember(
+                FrontendCache::SITE_SETTINGS_KEY,
+                FrontendCache::SITE_SETTINGS_TTL_SECONDS,
+                fn (): array => User::getSiteSettings()
+            ),
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error'   => fn () => $request->session()->get('error'),

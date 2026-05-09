@@ -1,7 +1,7 @@
 <template>
     <Head title="চেকআউট - অ্যারোমা ব্লেন্ড চা" />
     <div class="min-h-screen bg-gray-50">
-        <StickyRibbon />
+        <StickyRibbon :content="site?.ribbon" />
 
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-16 mt-10 sm:mt-12">
             <!-- Back link -->
@@ -347,6 +347,7 @@ const props = defineProps({
     cartItems: { type: Array, default: () => [] },
     deliveryCharges: { type: Array, default: () => [] },
     paymentMethods: { type: Array, default: () => [] },
+    site: { type: Object, default: () => ({}) },
     captcha: { type: Object, default: () => ({ enabled: false, site_key: '' }) },
 });
 
