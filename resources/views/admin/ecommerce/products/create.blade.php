@@ -29,7 +29,6 @@
     <form action="{{ route('admin.ecommerce.products.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="row">
-            <!-- Main Info -->
             <div class="col-lg-8">
                 <div class="card mb-4">
                     <div class="card-header border-light">
@@ -56,22 +55,35 @@
                     </div>
                 </div>
 
-                <!-- Images -->
                 <div class="card mb-4">
-                    <div class="card-header border-light">
-                        <h5 class="card-title m-0">Product Images</h5>
-                        <small class="text-muted">First image will be set as primary. JPEG/PNG/WEBP - max 2MB each.
-                        If no image is uploaded, the default product image will be used.</small>
+                    <div class="card-header border-light d-flex align-items-center justify-content-between">
+                        <div>
+                            <h5 class="card-title m-0">Product Images</h5>
+                            <small class="text-muted">Choose from existing media or upload new files. First image becomes primary automatically.</small>
+                        </div>
+                        <button type="button" class="btn btn-soft-primary btn-sm" data-bs-toggle="modal" data-bs-target="#mediaLibraryModal">
+                            <i class="ti ti-photo me-1"></i> Choose From Media
+                        </button>
                     </div>
                     <div class="card-body">
-                        <input type="file" name="images[]" id="images" class="form-control @error('images.*') is-invalid @enderror"
-                               accept="image/*" multiple />
-                        @error('images.*')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-                        <div id="image-preview-container" class="d-flex flex-wrap gap-2 mt-3"></div>
+                        <div class="mb-3">
+                            <label class="form-label">Selected Existing Media</label>
+                            <div id="selected-existing-empty" class="text-muted small">No media selected yet.</div>
+                            <div id="selected-existing-list" class="row g-2"></div>
+                            <div id="selected-existing-inputs"></div>
+                        </div>
+
+                        <div>
+                            <label class="form-label" for="new-images">Upload New Images <small class="text-muted">(multiple allowed)</small></label>
+                            <input type="file" name="new_images[]" id="new-images" class="form-control @error('new_images.*') is-invalid @enderror"
+                                   accept="image/*" multiple />
+                            @error('new_images.*')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                            <small class="text-muted">JPEG/PNG/WEBP/GIF/AVIF - max 2MB each.</small>
+                            <div id="new-image-preview" class="row g-2 mt-2"></div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Tags -->
                 <div class="card mb-4">
                     <div class="card-header border-light d-flex align-items-center justify-content-between">
                         <h5 class="card-title m-0">Product Tags / Labels</h5>
@@ -80,15 +92,12 @@
                         </button>
                     </div>
                     <div class="card-body">
-                        <div id="tags-container">
-                            <!-- Tags will be added dynamically -->
-                        </div>
+                        <div id="tags-container"></div>
                         <p class="text-muted small" id="no-tags-msg">No tags added. Tags appear as badges on the product detail page.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Sidebar -->
             <div class="col-lg-4">
                 <div class="card mb-4">
                     <div class="card-header border-light">
@@ -96,13 +105,13 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="price" class="form-label">Sale Price (৳) <span class="text-danger">*</span></label>
+                            <label for="price" class="form-label">Sale Price (Tk) <span class="text-danger">*</span></label>
                             <input type="number" name="price" id="price" class="form-control @error('price') is-invalid @enderror"
                                    value="{{ old('price') }}" min="0" step="0.01" required />
                             @error('price')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="mb-3">
-                            <label for="original_price" class="form-label">Original Price (৳) <span class="text-danger">*</span></label>
+                            <label for="original_price" class="form-label">Original Price (Tk) <span class="text-danger">*</span></label>
                             <input type="number" name="original_price" id="original_price" class="form-control @error('original_price') is-invalid @enderror"
                                    value="{{ old('original_price') }}" min="0" step="0.01" required />
                             @error('original_price')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -146,14 +155,14 @@
                             <div class="d-flex gap-3 mt-1">
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="is_active" id="activeYes" value="1"
-                                           {{ old('is_active', '1') == '1' ? 'checked' : '' }}>
+                                           {{ old('is_active', '1') === '1' ? 'checked' : '' }}>
                                     <label class="form-check-label" for="activeYes">
                                         <span class="badge bg-success">Active</span>
                                     </label>
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="is_active" id="activeNo" value="0"
-                                           {{ old('is_active') == '0' ? 'checked' : '' }}>
+                                           {{ old('is_active') === '0' ? 'checked' : '' }}>
                                     <label class="form-check-label" for="activeNo">
                                         <span class="badge bg-danger">Inactive</span>
                                     </label>
@@ -173,28 +182,201 @@
         </div>
     </form>
 </div>
+
+<div class="modal fade" id="mediaLibraryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Media Library</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <input type="text" id="media-search" class="form-control" placeholder="Search by filename..." />
+                </div>
+
+                @if(!empty($mediaLibraryImages))
+                    <div class="row g-3" id="media-grid">
+                        @foreach($mediaLibraryImages as $media)
+                            <div class="col-6 col-md-4 col-lg-3 media-item" data-media-name="{{ strtolower($media['name']) }}">
+                                <label class="card border h-100 mb-0">
+                                    <input type="checkbox" class="form-check-input position-absolute top-0 end-0 m-2 media-checkbox" value="{{ $media['path'] }}">
+                                    <img src="{{ $media['url'] }}" class="card-img-top" style="height:120px;object-fit:cover;" alt="{{ $media['name'] }}">
+                                    <div class="card-body p-2">
+                                        <p class="mb-0 small text-truncate" title="{{ $media['name'] }}">{{ $media['name'] }}</p>
+                                    </div>
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                    <p class="text-muted small mt-3 mb-0 d-none" id="media-empty-search">No media matched your search.</p>
+                @else
+                    <div class="alert alert-light border mb-0">
+                        No uploaded product media found yet. Upload images first to reuse them later.
+                    </div>
+                @endif
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary btn-sm" id="use-selected-media">
+                    Use Selected Media
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script>
-// Image preview
-document.getElementById('images').addEventListener('change', function() {
-    const container = document.getElementById('image-preview-container');
+const mediaLibrary = @json($mediaLibraryImages);
+const mediaByPath = Object.fromEntries(mediaLibrary.map(item => [item.path, item]));
+const selectedExisting = new Set(@json(old('existing_images', [])));
+
+const selectedExistingList = document.getElementById('selected-existing-list');
+const selectedExistingInputs = document.getElementById('selected-existing-inputs');
+const selectedExistingEmpty = document.getElementById('selected-existing-empty');
+const mediaModalElement = document.getElementById('mediaLibraryModal');
+
+function renderSelectedExisting() {
+    const paths = Array.from(selectedExisting);
+    selectedExistingList.innerHTML = '';
+    selectedExistingInputs.innerHTML = '';
+    selectedExistingEmpty.classList.toggle('d-none', paths.length > 0);
+
+    paths.forEach(path => {
+        const media = mediaByPath[path];
+        if (!media) return;
+
+        const col = document.createElement('div');
+        col.className = 'col-6 col-md-4 col-lg-3';
+        col.innerHTML = `
+            <div class="card border mb-0 h-100">
+                <img src="${media.url}" class="card-img-top" style="height:100px;object-fit:cover;" alt="${media.name}">
+                <div class="card-body p-2 d-flex justify-content-between align-items-center gap-2">
+                    <span class="small text-truncate" title="${media.name}">${media.name}</span>
+                    <button type="button" class="btn btn-soft-danger btn-xs remove-existing-media" data-path="${path}">
+                        <i class="ti ti-x"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        selectedExistingList.appendChild(col);
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'existing_images[]';
+        input.value = path;
+        selectedExistingInputs.appendChild(input);
+    });
+
+    document.querySelectorAll('.remove-existing-media').forEach(btn => {
+        btn.addEventListener('click', function() {
+            selectedExisting.delete(this.getAttribute('data-path'));
+            renderSelectedExisting();
+            syncModalCheckboxes();
+        });
+    });
+}
+
+function syncModalCheckboxes() {
+    document.querySelectorAll('.media-checkbox').forEach(cb => {
+        cb.checked = selectedExisting.has(cb.value);
+    });
+}
+
+if (mediaModalElement) {
+    mediaModalElement.addEventListener('show.bs.modal', function() {
+        syncModalCheckboxes();
+    });
+}
+
+const useSelectedMediaBtn = document.getElementById('use-selected-media');
+if (useSelectedMediaBtn) {
+    useSelectedMediaBtn.addEventListener('click', function() {
+        const checked = Array.from(document.querySelectorAll('.media-checkbox:checked')).map(cb => cb.value);
+        selectedExisting.clear();
+        checked.forEach(path => selectedExisting.add(path));
+        renderSelectedExisting();
+        const instance = bootstrap.Modal.getInstance(mediaModalElement);
+        if (instance) instance.hide();
+    });
+}
+
+const mediaSearch = document.getElementById('media-search');
+if (mediaSearch) {
+    mediaSearch.addEventListener('input', function() {
+        const keyword = this.value.trim().toLowerCase();
+        const items = document.querySelectorAll('.media-item');
+        let visibleCount = 0;
+
+        items.forEach(item => {
+            const matched = item.getAttribute('data-media-name').includes(keyword);
+            item.classList.toggle('d-none', !matched);
+            if (matched) visibleCount++;
+        });
+
+        const emptyBySearch = document.getElementById('media-empty-search');
+        if (emptyBySearch) {
+            emptyBySearch.classList.toggle('d-none', visibleCount > 0);
+        }
+    });
+}
+
+const newImageInput = document.getElementById('new-images');
+let newImageDataTransfer = new DataTransfer();
+
+function renderNewImagePreview() {
+    const container = document.getElementById('new-image-preview');
     container.innerHTML = '';
-    Array.from(this.files).forEach((file, i) => {
+
+    Array.from(newImageDataTransfer.files).forEach((file, idx) => {
         const reader = new FileReader();
         reader.onload = function(e) {
-            const div = document.createElement('div');
-            div.className = 'position-relative';
-            div.innerHTML = `<img src="${e.target.result}" class="rounded border" style="width:80px;height:80px;object-fit:cover;" />
-                ${i === 0 ? '<span class="badge bg-success position-absolute top-0 start-0" style="font-size:9px;">Primary</span>' : ''}`;
-            container.appendChild(div);
+            const col = document.createElement('div');
+            col.className = 'col-6 col-md-4 col-lg-3';
+            col.innerHTML = `
+                <div class="card border mb-0 h-100">
+                    <img src="${e.target.result}" class="card-img-top" style="height:100px;object-fit:cover;" alt="${file.name}">
+                    <div class="card-body p-2 d-flex justify-content-between align-items-center gap-2">
+                        <span class="small text-truncate" title="${file.name}">${file.name}</span>
+                        <button type="button" class="btn btn-soft-danger btn-xs remove-new-image" data-index="${idx}">
+                            <i class="ti ti-x"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(col);
         };
         reader.readAsDataURL(file);
     });
-});
 
-// Dynamic tags
+    setTimeout(function() {
+        document.querySelectorAll('.remove-new-image').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const removeIndex = Number(this.getAttribute('data-index'));
+                const nextTransfer = new DataTransfer();
+                Array.from(newImageDataTransfer.files).forEach((file, idx) => {
+                    if (idx !== removeIndex) nextTransfer.items.add(file);
+                });
+                newImageDataTransfer = nextTransfer;
+                newImageInput.files = newImageDataTransfer.files;
+                renderNewImagePreview();
+            });
+        });
+    }, 0);
+}
+
+if (newImageInput) {
+    newImageInput.addEventListener('change', function() {
+        const nextTransfer = new DataTransfer();
+        Array.from(this.files).forEach(file => nextTransfer.items.add(file));
+        newImageDataTransfer = nextTransfer;
+        this.files = newImageDataTransfer.files;
+        renderNewImagePreview();
+    });
+}
+
 let tagCount = 0;
 const noTagsMsg = document.getElementById('no-tags-msg');
 
@@ -229,5 +411,7 @@ document.getElementById('add-tag-btn').addEventListener('click', function() {
     });
     container.appendChild(row);
 });
+
+renderSelectedExisting();
 </script>
 @endpush

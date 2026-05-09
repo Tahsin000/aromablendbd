@@ -9,6 +9,7 @@ use App\Models\ProductTag;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 
@@ -38,7 +39,9 @@ class ProductController extends Controller
 
     public function create()
     {
-        return view('admin.ecommerce.products.create');
+        $mediaLibraryImages = $this->mediaLibraryImages();
+
+        return view('admin.ecommerce.products.create', compact('mediaLibraryImages'));
     }
 
     public function store(Request $request)
@@ -55,8 +58,17 @@ class ProductController extends Controller
             'review_count'   => 'nullable|integer|min:0',
             'is_active'      => 'nullable|in:0,1',
             'sort_order'     => 'nullable|integer|min:0',
-            'images'         => 'nullable|array',
-            'images.*'       => 'image|mimes:jpeg,png,jpg,webp|max:2048',
+            'existing_images'   => 'nullable|array',
+            'existing_images.*' => [
+                'string',
+                function (string $attribute, mixed $value, \Closure $fail) {
+                    if (!is_string($value) || !$this->isValidExistingProductImagePath($value)) {
+                        $fail('One or more selected media files are no longer available.');
+                    }
+                },
+            ],
+            'new_images'     => 'nullable|array',
+            'new_images.*'   => 'image|mimes:jpeg,png,jpg,webp|max:2048',
             'tags'           => 'nullable|array',
             'tags.*.label'   => 'required_with:tags|string|max:255',
             'tags.*.color'   => 'nullable|in:green,red,amber,blue,purple',
@@ -68,21 +80,17 @@ class ProductController extends Controller
         $validated['review_count']= $validated['review_count'] ?? 0;
 
         DB::transaction(function () use ($request, $validated) {
-            $product = Product::create(collect($validated)->except(['images', 'tags'])->toArray());
+            $product = Product::create(collect($validated)->except(['existing_images', 'new_images', 'tags'])->toArray());
 
-            // Handle image uploads
-            if ($request->hasFile('images')) {
-                $isPrimary = true;
-                foreach ($request->file('images') as $i => $file) {
-                    $path = ImageService::upload($file, 'products');
-                    ProductImage::create([
-                        'product_id' => $product->id,
-                        'image_path' => $path,
-                        'sort_order' => $i + 1,
-                        'is_primary' => $isPrimary,
-                    ]);
-                    $isPrimary = false;
-                }
+            $nextOrder = 1;
+            $hasPrimary = false;
+
+            foreach (array_values(array_unique($validated['existing_images'] ?? [])) as $path) {
+                $this->attachImagePath($product, $path, $nextOrder, $hasPrimary);
+            }
+
+            if ($request->hasFile('new_images')) {
+                $this->attachUploadedImages($product, $request->file('new_images'), $nextOrder, $hasPrimary);
             }
 
             // Handle tags
@@ -105,7 +113,9 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $product->load(['images', 'tags']);
-        return view('admin.ecommerce.products.edit', compact('product'));
+        $mediaLibraryImages = $this->mediaLibraryImages();
+
+        return view('admin.ecommerce.products.edit', compact('product', 'mediaLibraryImages'));
     }
 
     public function update(Request $request, Product $product)
@@ -122,6 +132,15 @@ class ProductController extends Controller
             'review_count'   => 'nullable|integer|min:0',
             'is_active'      => 'nullable|in:0,1',
             'sort_order'     => 'nullable|integer|min:0',
+            'existing_images'   => 'nullable|array',
+            'existing_images.*' => [
+                'string',
+                function (string $attribute, mixed $value, \Closure $fail) {
+                    if (!is_string($value) || !$this->isValidExistingProductImagePath($value)) {
+                        $fail('One or more selected media files are no longer available.');
+                    }
+                },
+            ],
             'new_images'     => 'nullable|array',
             'new_images.*'   => 'image|mimes:jpeg,png,jpg,webp|max:2048',
             'delete_images'  => 'nullable|array',
@@ -146,39 +165,38 @@ class ProductController extends Controller
         $validated['review_count'] = $validated['review_count'] ?? 0;
 
         DB::transaction(function () use ($request, $product, $validated) {
-            $product->update(collect($validated)->except(['new_images', 'delete_images', 'primary_image', 'tags'])->toArray());
+            $product->update(collect($validated)->except(['existing_images', 'new_images', 'delete_images', 'primary_image', 'tags'])->toArray());
 
             // Delete selected images
             if (!empty($validated['delete_images'])) {
                 $toDelete = ProductImage::whereIn('id', $validated['delete_images'])
                     ->where('product_id', $product->id)->get();
                 foreach ($toDelete as $img) {
-                    ImageService::delete($img->image_path);
-                    $img->delete();
+                    $this->deleteProductImage($img);
                 }
             }
 
-            // Set primary image
-            if (!empty($validated['primary_image'])) {
-                $product->images()->update(['is_primary' => false]);
-                $product->images()->where('id', $validated['primary_image'])->update(['is_primary' => true]);
+            $nextOrder = (int) ($product->images()->max('sort_order') ?? 0) + 1;
+            $hasPrimary = $product->images()->where('is_primary', true)->exists();
+
+            foreach (array_values(array_unique($validated['existing_images'] ?? [])) as $path) {
+                $this->attachImagePath($product, $path, $nextOrder, $hasPrimary);
             }
 
-            // Upload new images
             if ($request->hasFile('new_images')) {
-                $nextOrder = $product->images()->max('sort_order') + 1;
-                $hasPrimary = $product->images()->where('is_primary', true)->exists();
-                foreach ($request->file('new_images') as $file) {
-                    $path = ImageService::upload($file, 'products');
-                    ProductImage::create([
-                        'product_id' => $product->id,
-                        'image_path' => $path,
-                        'sort_order' => $nextOrder++,
-                        'is_primary' => !$hasPrimary,
-                    ]);
-                    $hasPrimary = true;
+                $this->attachUploadedImages($product, $request->file('new_images'), $nextOrder, $hasPrimary);
+            }
+
+            // Set primary image if it still exists after deletions.
+            if (!empty($validated['primary_image'])) {
+                $primaryExists = $product->images()->whereKey($validated['primary_image'])->exists();
+                if ($primaryExists) {
+                    $product->images()->update(['is_primary' => false]);
+                    $product->images()->where('id', $validated['primary_image'])->update(['is_primary' => true]);
                 }
             }
+
+            $this->ensurePrimaryImage($product);
 
             // Replace tags only when tags are present in this request payload.
             if (array_key_exists('tags', $validated)) {
@@ -202,13 +220,13 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        // Remove uploaded images from storage
-        foreach ($product->images as $img) {
-            if ($img->image_path) {
-                ImageService::delete($img->image_path);
+        DB::transaction(function () use ($product) {
+            $product->loadMissing('images');
+            foreach ($product->images as $img) {
+                $this->deleteProductImage($img);
             }
-        }
-        $product->delete();
+            $product->delete();
+        });
 
         return redirect()->route('admin.ecommerce.products.index')
             ->with('success', 'Product deleted successfully.');
@@ -231,17 +249,131 @@ class ProductController extends Controller
         // Ensure the image belongs to this product
         abort_if($image->product_id !== $product->id, 403);
 
-        ImageService::delete($image->image_path);
-        $image->delete();
-
-        // If that was the primary image, promote the next one
-        if ($image->is_primary) {
-            $next = $product->images()->first();
-            if ($next) {
-                $next->update(['is_primary' => true]);
-            }
-        }
+        $this->deleteProductImage($image);
+        $this->ensurePrimaryImage($product);
 
         return back()->with('success', 'Image deleted.');
+    }
+
+    public function destroyImages(Request $request, Product $product)
+    {
+        $validated = $request->validate([
+            'image_ids'   => 'required|array|min:1',
+            'image_ids.*' => [
+                'integer',
+                Rule::exists('product_images', 'id')->where(fn ($query) => $query->where('product_id', $product->id)),
+            ],
+        ]);
+
+        $deletedCount = 0;
+        DB::transaction(function () use ($product, $validated, &$deletedCount) {
+            $images = ProductImage::where('product_id', $product->id)
+                ->whereIn('id', $validated['image_ids'])
+                ->get();
+
+            foreach ($images as $image) {
+                $this->deleteProductImage($image);
+                $deletedCount++;
+            }
+
+            $this->ensurePrimaryImage($product);
+        });
+
+        return back()->with('success', $deletedCount . ' image(s) deleted.');
+    }
+
+    private function mediaLibraryImages(): array
+    {
+        $disk = Storage::disk('public');
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'avif'];
+
+        return collect($disk->allFiles('products'))
+            ->filter(function (string $path) use ($allowedExtensions) {
+                return in_array(Str::lower(pathinfo($path, PATHINFO_EXTENSION)), $allowedExtensions, true);
+            })
+            ->map(function (string $path) use ($disk) {
+                return [
+                    'path' => $path,
+                    'url' => ImageService::url($path),
+                    'name' => basename($path),
+                    'modified_at' => $disk->lastModified($path),
+                ];
+            })
+            ->sortByDesc('modified_at')
+            ->values()
+            ->all();
+    }
+
+    private function isValidExistingProductImagePath(string $path): bool
+    {
+        $normalized = ltrim(str_replace('\\', '/', $path), '/');
+        if (!Str::startsWith($normalized, 'products/')) {
+            return false;
+        }
+
+        $ext = Str::lower(pathinfo($normalized, PATHINFO_EXTENSION));
+        if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'avif'], true)) {
+            return false;
+        }
+
+        return Storage::disk('public')->exists($normalized);
+    }
+
+    private function attachImagePath(Product $product, string $path, int &$nextOrder, bool &$hasPrimary): void
+    {
+        $normalized = ltrim(str_replace('\\', '/', $path), '/');
+        $alreadyAttached = $product->images()
+            ->where('image_path', $normalized)
+            ->exists();
+
+        if ($alreadyAttached) {
+            return;
+        }
+
+        ProductImage::create([
+            'product_id' => $product->id,
+            'image_path' => $normalized,
+            'sort_order' => $nextOrder++,
+            'is_primary' => !$hasPrimary,
+        ]);
+
+        $hasPrimary = true;
+    }
+
+    private function attachUploadedImages(Product $product, array $files, int &$nextOrder, bool &$hasPrimary): void
+    {
+        foreach ($files as $file) {
+            $path = ImageService::upload($file, 'products');
+            ProductImage::create([
+                'product_id' => $product->id,
+                'image_path' => $path,
+                'sort_order' => $nextOrder++,
+                'is_primary' => !$hasPrimary,
+            ]);
+            $hasPrimary = true;
+        }
+    }
+
+    private function deleteProductImage(ProductImage $image): void
+    {
+        $path = $image->image_path;
+        $image->delete();
+
+        if ($path && !ProductImage::where('image_path', $path)->exists()) {
+            ImageService::delete($path);
+        }
+    }
+
+    private function ensurePrimaryImage(Product $product): void
+    {
+        $hasPrimary = $product->images()->where('is_primary', true)->exists();
+        if ($hasPrimary) {
+            return;
+        }
+
+        $first = $product->images()->orderBy('sort_order')->orderBy('id')->first();
+        if ($first) {
+            $first->update(['is_primary' => true]);
+        }
     }
 }

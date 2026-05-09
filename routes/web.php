@@ -79,6 +79,7 @@ Route::prefix('admin')->name('admin.')->middleware('admin.auth')->group(function
         Route::patch('/products-manage/{product}/toggle', [ProductController::class, 'toggleStatus'])->name('products.toggle');
         Route::patch('/products-manage/{product}/highlight', [ProductController::class, 'toggleHighlight'])->name('products.highlight');
         Route::delete('/products-manage/{product}/images/{image}', [ProductController::class, 'destroyImage'])->name('products.image.destroy');
+        Route::delete('/products-manage/{product}/images', [ProductController::class, 'destroyImages'])->name('products.images.destroy');
 
         Route::get('/products/details',  [EcommerceController::class, 'productDetails'])->name('product-details');
         Route::get('/products/add',      [EcommerceController::class, 'productAdd'])->name('product-add');
