@@ -252,6 +252,10 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <input type="file" id="gallery-modal-file-upload" accept="image/jpeg,image/png,image/jpg,image/webp" style="display:none;" />
+                <button type="button" class="btn btn-soft-primary btn-sm" id="btn-upload-gallery-image">
+                    <i class="ti ti-upload me-1"></i> Upload Image
+                </button>
                 <button type="button" class="btn btn-primary btn-sm" id="use-gallery-media">
                     Use Selected Image
                 </button>
@@ -485,6 +489,101 @@ document.addEventListener('DOMContentLoaded', function() {
             const modalEl = document.getElementById('galleryMediaLibraryModal');
             const modal = bootstrap.Modal.getInstance(modalEl);
             if (modal) modal.hide();
+        });
+    }
+
+    // Upload new image from modal
+    const btnUploadGallery = document.getElementById('btn-upload-gallery-image');
+    const galleryFileInput = document.getElementById('gallery-modal-file-upload');
+
+    if (btnUploadGallery && galleryFileInput) {
+        btnUploadGallery.addEventListener('click', function() {
+            galleryFileInput.click();
+        });
+
+        galleryFileInput.addEventListener('change', function() {
+            if (!this.files || !this.files.length) return;
+
+            const file = this.files[0];
+            const formData = new FormData();
+            formData.append('image', file);
+
+            btnUploadGallery.disabled = true;
+            btnUploadGallery.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Uploading...';
+
+            fetch("{{ route('admin.ecommerce.gallery-upload') }}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                },
+                body: formData,
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.text().then(text => { throw new Error('Server ' + res.status + ': ' + text.substring(0, 200)); });
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (!data.url) throw new Error('No URL returned');
+
+                // Append to grid
+                const grid = document.getElementById('gallery-media-grid');
+                if (grid) {
+                    const col = document.createElement('div');
+                    col.className = 'col-6 col-md-4 col-lg-3 gallery-media-item';
+                    col.dataset.mediaName = data.path.toLowerCase().split('/').pop();
+                    col.innerHTML = `
+                        <label class="card border h-100 mb-0">
+                            <input type="radio" class="form-check-input position-absolute top-0 end-0 m-2 gallery-media-radio" value="${data.url}" data-media-path="${data.path}" checked>
+                            <img src="${data.url}" class="card-img-top" style="height:120px;object-fit:cover;" alt="${data.path.split('/').pop()}">
+                            <div class="card-body p-2">
+                                <p class="mb-0 small text-truncate" title="${data.path.split('/').pop()}">${data.path.split('/').pop()}</p>
+                            </div>
+                        </label>
+                    `;
+                    grid.appendChild(col);
+
+                    // Hide empty alert if exists
+                    const emptyAlert = document.querySelector('#galleryMediaLibraryModal .alert-light');
+                    if (emptyAlert) emptyAlert.remove();
+
+                    // Auto-select: trigger the use-selected action
+                    const radio = col.querySelector('.gallery-media-radio');
+                    const url = radio.value;
+                    const path = radio.dataset.mediaPath;
+                    const fileName = path.split('/').pop();
+
+                    const cardBody = activeStepMediaContainer.closest('.card-body');
+                    const hiddenInput = cardBody.querySelector('[data-field="image_url"]');
+                    if (hiddenInput) hiddenInput.value = url;
+
+                    activeStepMediaContainer.innerHTML = `
+                        <div class="card border h-100 step-media-card" data-url="${url}">
+                            <img src="${url}" class="card-img-top" style="height:80px;width:100px;object-fit:cover;" alt="Step image" />
+                            <div class="card-body p-1 d-flex justify-content-between align-items-center gap-1">
+                                <span class="small text-truncate" style="max-width:70px;" title="${fileName}">${fileName}</span>
+                                <button type="button" class="btn btn-soft-danger btn-xs btn-remove-step-media">
+                                    <i class="ti ti-x"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+
+                    const modalEl = document.getElementById('galleryMediaLibraryModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                }
+            })
+            .catch(err => {
+                console.error('Gallery upload error:', err);
+                alert('Upload failed: ' + err.message);
+            })
+            .finally(() => {
+                btnUploadGallery.disabled = false;
+                btnUploadGallery.innerHTML = '<i class="ti ti-upload me-1"></i> Upload Image';
+                galleryFileInput.value = '';
+            });
         });
     }
 
