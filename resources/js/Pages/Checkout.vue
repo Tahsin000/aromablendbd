@@ -64,11 +64,17 @@
                             </div>
                         </div>
 
-                        <button @click="nextStep" :disabled="selectedProducts.length === 0"
-                                :class="`w-full py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-2 transition-all ${selectedProducts.length > 0 ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`">
+                        <AnimatedButton
+                            @click="nextStep"
+                            :disabled="selectedProducts.length === 0"
+                            :attention-seeker="selectedProducts.length > 0"
+                            size="lg"
+                        >
+                            <template #icon>
+                                <ArrowRightIcon class="w-4 h-4 sm:w-5 sm:h-5" />
+                            </template>
                             পরবর্তী ধাপ
-                            <ArrowRightIcon class="w-4 h-4 sm:w-5 sm:h-5" />
-                        </button>
+                        </AnimatedButton>
                     </div>
 
                     <!-- Step 2: Delivery Info -->
@@ -124,11 +130,16 @@
                                         class="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-4 rounded-xl border-2 border-gray-200 text-gray-600 hover:border-green-600 hover:text-green-600 font-bold text-sm sm:text-base transition-colors">
                                     পূর্ববর্তী
                                 </button>
-                                <button type="submit"
-                                        class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 sm:py-4 rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-2 shadow-lg transition-all">
-                                    পরবর্তী ধাপ
+                            <AnimatedButton
+                                @click="nextStep"
+                                :attention-seeker="true"
+                                size="lg"
+                            >
+                                <template #icon>
                                     <ArrowRightIcon class="w-4 h-4 sm:w-5 sm:h-5" />
-                                </button>
+                                </template>
+                                পরবর্তী ধাপ
+                            </AnimatedButton>
                             </div>
                         </form>
                     </div>
@@ -206,12 +217,18 @@
                                     class="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-4 rounded-xl border-2 border-gray-200 text-gray-600 hover:border-green-600 hover:text-green-600 font-bold text-sm sm:text-base transition-colors">
                                 পূর্ববর্তী
                             </button>
-                            <button @click="submitOrder"
-                                    :disabled="isSubmitting || (captchaEnabled && !captchaToken)"
-                                    class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 sm:py-4 rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
-                                <CheckCircleIcon class="w-4 h-4 sm:w-5 sm:h-5" />
+                            <AnimatedButton
+                                @click="submitOrder"
+                                :disabled="isSubmitting || (captchaEnabled && !captchaToken)"
+                                :loading="isSubmitting"
+                                :attention-seeker="true"
+                                size="lg"
+                            >
+                                <template #icon>
+                                    <CheckCircleIcon class="w-4 h-4 sm:w-5 sm:h-5" />
+                                </template>
                                 অর্ডার নিশ্চিত করুন
-                            </button>
+                            </AnimatedButton>
                         </div>
                     </div>
                 </div>
@@ -336,6 +353,7 @@
 import { ref, reactive, computed, watch, nextTick, onMounted } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import StickyRibbon from '../Components/Landing/StickyRibbon.vue';
+import AnimatedButton from '../Components/AnimatedButton.vue';
 import {
     ArrowLeftIcon, ArrowRightIcon, CheckIcon, ShoppingBagIcon,
     TruckIcon, CreditCardIcon, BanknotesIcon, CheckCircleIcon,

@@ -35,9 +35,16 @@
 
                         <div :class="`relative mt-4 lg:mt-0 ${i % 2 === 0 ? '' : 'lg:col-start-2'}`">
                             <div class="aspect-video rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
-                                <svg class="w-24 h-24 text-green-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="0.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" :d="step.svgPath" />
-                                </svg>
+                                <template v-if="step.imageUrl && !imageErrors[i]">
+                                    <img :src="step.imageUrl" :alt="step.title"
+                                         class="w-full h-full object-cover" loading="lazy"
+                                         @error="imageErrors[i] = true" />
+                                </template>
+                                <template v-else>
+                                    <svg class="w-24 h-24 text-green-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="0.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" :d="step.svgPath" />
+                                    </svg>
+                                </template>
                             </div>
                         </div>
 
@@ -50,7 +57,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import {
     MapIcon, SunIcon, HandRaisedIcon, FireIcon,
     CubeIcon, TruckIcon, HeartIcon,
@@ -59,6 +66,8 @@ import {
 const props = defineProps({
     content: { type: Object, default: () => ({}) },
 });
+
+const imageErrors = ref({});
 
 const defaultIconNames = ['sun', 'hand', 'fire', 'cube', 'truck', 'heart'];
 const iconRegistry = {
@@ -93,8 +102,9 @@ const resolvedSteps = computed(() => {
     return steps.map((step, i) => ({
         title: step.title || '',
         desc: step.desc || '',
-        icon: iconRegistry[defaultIconNames[i] || 'sun'] || SunIcon,
+        imageUrl: step.image_url || '',
         svgPath: step.svgPath || defaultSvgPaths[i] || defaultSvgPaths[0],
+        icon: iconRegistry[defaultIconNames[i] || 'sun'] || SunIcon,
     }));
 });
 </script>

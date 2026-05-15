@@ -105,6 +105,18 @@
                     <textarea class="form-control form-control-sm" data-field="desc" rows="2"></textarea>
                 </div>
             </div>
+            <div class="row align-items-end">
+                <div class="col-12 mb-2">
+                    <label class="form-label small">Step Image</label>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <button type="button" class="btn btn-soft-primary btn-sm btn-choose-media">
+                            <i class="ti ti-photo me-1"></i> Choose From Media
+                        </button>
+                        <input type="hidden" data-field="image_url" value="" />
+                    </div>
+                    <div class="step-media-preview d-flex flex-wrap gap-2"></div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -204,6 +216,49 @@
         </div>
     </div>
 </template>
+
+{{-- Gallery Media Library Modal --}}
+<div class="modal fade" id="galleryMediaLibraryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Select Step Image</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <input type="text" id="gallery-media-search" class="form-control" placeholder="Search by filename..." />
+                </div>
+                @if(!empty($galleryMedia))
+                    <div class="row g-3" id="gallery-media-grid">
+                        @foreach($galleryMedia as $media)
+                            <div class="col-6 col-md-4 col-lg-3 gallery-media-item" data-media-name="{{ strtolower($media['name']) }}">
+                                <label class="card border h-100 mb-0">
+                                    <input type="radio" class="form-check-input position-absolute top-0 end-0 m-2 gallery-media-radio" value="{{ $media['url'] }}" data-media-path="{{ $media['path'] }}">
+                                    <img src="{{ $media['url'] }}" class="card-img-top" style="height:120px;object-fit:cover;" alt="{{ $media['name'] }}">
+                                    <div class="card-body p-2">
+                                        <p class="mb-0 small text-truncate" title="{{ $media['name'] }}">{{ $media['name'] }}</p>
+                                    </div>
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                    <p class="text-muted small mt-3 mb-0 d-none" id="gallery-media-empty-search">No media matched your search.</p>
+                @else
+                    <div class="alert alert-light border mb-0">
+                        No gallery images found. Upload images first via the Product Gallery step image upload, or add product images.
+                    </div>
+                @endif
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary btn-sm" id="use-gallery-media">
+                    Use Selected Image
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -354,6 +409,96 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    // Gallery media library modal
+    const galleryMedia = @json($galleryMedia);
+    let activeStepMediaContainer = null;
+
+    // Open modal when "Choose From Media" button clicked
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.btn-choose-media');
+        if (!btn) return;
+
+        const cardBody = btn.closest('.card-body');
+        activeStepMediaContainer = cardBody.querySelector('.step-media-preview');
+        const modalEl = document.getElementById('galleryMediaLibraryModal');
+        if (modalEl) {
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+    });
+
+    // Gallery media search
+    const galleryMediaSearch = document.getElementById('gallery-media-search');
+    if (galleryMediaSearch) {
+        galleryMediaSearch.addEventListener('input', function() {
+            const keyword = this.value.trim().toLowerCase();
+            const items = document.querySelectorAll('.gallery-media-item');
+            let visibleCount = 0;
+
+            items.forEach(item => {
+                const matched = item.getAttribute('data-media-name').includes(keyword);
+                item.classList.toggle('d-none', !matched);
+                if (matched) visibleCount++;
+            });
+
+            const emptyEl = document.getElementById('gallery-media-empty-search');
+            if (emptyEl) {
+                emptyEl.classList.toggle('d-none', visibleCount > 0);
+            }
+        });
+    }
+
+    // Use selected media button
+    const useGalleryMediaBtn = document.getElementById('use-gallery-media');
+    if (useGalleryMediaBtn) {
+        useGalleryMediaBtn.addEventListener('click', function() {
+            const checked = document.querySelector('.gallery-media-radio:checked');
+            if (!checked || !activeStepMediaContainer) return;
+
+            const url = checked.value;
+            const path = checked.dataset.mediaPath;
+            const fileName = path.split('/').pop();
+
+            // Update hidden field
+            const cardBody = activeStepMediaContainer.closest('.card-body');
+            const hiddenInput = cardBody.querySelector('[data-field="image_url"]');
+            if (hiddenInput) hiddenInput.value = url;
+
+            // Render preview
+            activeStepMediaContainer.innerHTML = `
+                <div class="card border h-100 step-media-card" data-url="${url}">
+                    <img src="${url}" class="card-img-top" style="height:80px;width:100px;object-fit:cover;" alt="Step image" />
+                    <div class="card-body p-1 d-flex justify-content-between align-items-center gap-1">
+                        <span class="small text-truncate" style="max-width:70px;" title="${fileName}">${fileName}</span>
+                        <button type="button" class="btn btn-soft-danger btn-xs btn-remove-step-media">
+                            <i class="ti ti-x"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Clear radio selection
+            document.querySelectorAll('.gallery-media-radio').forEach(rb => rb.checked = false);
+
+            // Close modal
+            const modalEl = document.getElementById('galleryMediaLibraryModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+        });
+    }
+
+    // Remove step media (delegated)
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.btn-remove-step-media');
+        if (!btn) return;
+
+        const cardBody = btn.closest('.card-body');
+        const preview = btn.closest('.step-media-preview');
+        if (preview) preview.innerHTML = '';
+        const hiddenInput = cardBody.querySelector('[data-field="image_url"]');
+        if (hiddenInput) hiddenInput.value = '';
+    });
 });
 </script>
 @endpush

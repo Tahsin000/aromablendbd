@@ -72,6 +72,30 @@
                             <textarea class="form-control form-control-sm" data-field="desc" rows="2">{{ $step['desc'] ?? '' }}</textarea>
                         </div>
                     </div>
+                    <div class="row align-items-end">
+                        <div class="col-12 mb-2">
+                            <label class="form-label small">Step Image</label>
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <button type="button" class="btn btn-soft-primary btn-sm btn-choose-media" data-step-index="{{ $i }}">
+                                    <i class="ti ti-photo me-1"></i> Choose From Media
+                                </button>
+                                <input type="hidden" data-field="image_url" value="{{ $step['image_url'] ?? '' }}" />
+                            </div>
+                            <div class="step-media-preview d-flex flex-wrap gap-2" data-step-index="{{ $i }}">
+                                @if(!empty($step['image_url']))
+                                    <div class="card border h-100 step-media-card" data-url="{{ $step['image_url'] }}">
+                                        <img src="{{ $step['image_url'] }}" class="card-img-top" style="height:80px;width:100px;object-fit:cover;" alt="Step image" />
+                                        <div class="card-body p-1 d-flex justify-content-between align-items-center gap-1">
+                                            <span class="small text-truncate" style="max-width:70px;" title="{{ basename($step['image_url']) }}">{{ basename($step['image_url']) }}</span>
+                                            <button type="button" class="btn btn-soft-danger btn-xs btn-remove-step-media" data-step-index="{{ $i }}">
+                                                <i class="ti ti-x"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         @endforeach

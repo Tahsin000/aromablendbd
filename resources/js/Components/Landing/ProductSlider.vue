@@ -52,12 +52,16 @@
                                         class="w-7 h-7 rounded-lg border border-gray-200 hover:border-green-600 hover:bg-green-50 transition-colors flex items-center justify-center font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed">+</button>
                             </div>
                             <!-- Checkout button -->
-                            <button @click.stop="buyNow(item.id)"
-                                    :disabled="itemMaxStock(item) <= 0"
-                                    class="w-full bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed">
-                                <ShoppingBagIcon class="w-3.5 h-3.5" />
+                            <AnimatedButton
+                                @click.stop="buyNow(item.id)"
+                                :disabled="itemMaxStock(item) <= 0"
+                                size="sm"
+                            >
+                                <template #icon>
+                                    <ShoppingBagIcon class="w-3.5 h-3.5" />
+                                </template>
                                 {{ itemMaxStock(item) <= 0 ? 'Out of stock' : 'চেকআউট করুন' }}
-                            </button>
+                            </AnimatedButton>
                         </div>
                     </div>
                 </div>
@@ -86,6 +90,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { TagIcon, ShoppingBagIcon, ChevronLeftIcon, ChevronRightIcon, FireIcon } from '@heroicons/vue/24/outline';
+import AnimatedButton from '../AnimatedButton.vue';
 
 const props = defineProps({
     products: { type: [Array, Object], required: true },

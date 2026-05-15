@@ -7,7 +7,7 @@
         <OfferSection v-if="site.offer" :content="site.offer" />
         <ProductGallery v-if="site.product_gallery" :content="site.product_gallery" />
         <ReviewCarousel v-if="site.review" :reviews="reviews" :content="site.review" />
-        <!-- <ContactForm :products="products" /> -->
+        <ContactForm v-if="Object.keys(products).length" :products="products" :captcha="captcha || {}" />
     </div>
 
     <!-- Success Toast -->
@@ -40,6 +40,7 @@ defineProps({
     highlightedProducts: { type: Array, default: () => [] },
     reviews: { type: Array, default: () => [] },
     site: { type: Object, default: () => ({}) },
+    captcha: { type: Object, default: () => ({ enabled: false, site_key: '' }) },
 });
 
 const showToast = ref(false);

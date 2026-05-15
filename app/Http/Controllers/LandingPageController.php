@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DeliveryCharge;
-use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\Review;
 use App\Models\User;
@@ -59,6 +57,7 @@ class LandingPageController extends Controller
             'highlightedProducts' => $highlightedProducts,
             'reviews'           => $reviews,
             'site'              => $activeSettings,
+            'captcha'           => $this->getCaptchaConfig(),
         ]);
     }
 
@@ -97,5 +96,19 @@ class LandingPageController extends Controller
                 ->mapWithKeys(fn ($product) => [$product->slug => $product->toFrontendArray()])
                 ->all();
         });
+    }
+
+    private function getCaptchaConfig(): array
+    {
+        return [
+            'enabled'  => $this->isCaptchaEnabled(),
+            'site_key' => config('services.recaptcha.site_key'),
+        ];
+    }
+
+    private function isCaptchaEnabled(): bool
+    {
+        return filled(config('services.recaptcha.site_key'))
+            && filled(config('services.recaptcha.secret_key'));
     }
 }

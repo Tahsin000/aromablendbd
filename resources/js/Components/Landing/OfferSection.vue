@@ -47,10 +47,18 @@
             </div>
 
             <div>
-                <a href="#contact" class="inline-flex items-center gap-2 bg-white text-green-600 hover:bg-yellow-300 hover:text-green-800 text-lg font-bold px-10 py-4 rounded-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                    <ShoppingBagIcon class="w-5 h-5" />
+                <AnimatedButton
+                    as="a"
+                    href="#contact"
+                    :attention-seeker="true"
+                    :auto-width="true"
+                    variant="secondary"
+                >
+                    <template #icon>
+                        <ShoppingBagIcon class="w-5 h-5" />
+                    </template>
                     {{ c.cta_text }}
-                </a>
+                </AnimatedButton>
             </div>
         </div>
     </section>
@@ -59,6 +67,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { SparklesIcon, ShoppingBagIcon } from '@heroicons/vue/24/outline';
+import AnimatedButton from '../AnimatedButton.vue';
 
 const props = defineProps({
     content: { type: Object, default: () => ({}) },

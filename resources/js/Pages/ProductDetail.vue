@@ -177,12 +177,17 @@
 
                     <!-- CTA Buttons -->
                     <div class="flex gap-3">
-                        <button @click="goToCheckout"
-                                :disabled="isOutOfStock"
-                                class="flex-1 bg-green-600 hover:bg-green-700 text-white text-base sm:text-lg font-bold py-3.5 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none">
-                            <ShoppingCartIcon class="w-4 h-4 sm:w-5 sm:h-5" />
+                        <AnimatedButton
+                            @click="goToCheckout"
+                            :disabled="isOutOfStock"
+                            :attention-seeker="!isOutOfStock"
+                            size="lg"
+                        >
+                            <template #icon>
+                                <ShoppingCartIcon class="w-4 h-4 sm:w-5 sm:h-5" />
+                            </template>
                             {{ isOutOfStock ? 'Out of stock' : 'চেকআউটে যান' }}
-                        </button>
+                        </AnimatedButton>
                     </div>
 
                     <!-- Trust badges -->
@@ -212,6 +217,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import StickyRibbon from '../Components/Landing/StickyRibbon.vue';
+import AnimatedButton from '../Components/AnimatedButton.vue';
 import {
     ChevronRightIcon, TagIcon, GiftIcon, ClockIcon, ShoppingCartIcon,
     TruckIcon, ShieldCheckIcon, BanknotesIcon, StarIcon,
