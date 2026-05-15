@@ -7,7 +7,7 @@
         <OfferSection v-if="site.offer" :content="site.offer" />
         <ProductGallery v-if="site.product_gallery" :content="site.product_gallery" />
         <ReviewCarousel v-if="site.review" :reviews="reviews" :content="site.review" />
-        <ContactForm v-if="Object.keys(products).length" :products="products" :captcha="captcha || {}" />
+        <ContactForm v-if="Object.keys(products).length" :products="products" :captcha="captcha || {}" :delivery-charges="site.delivery_charges || []" />
         <FooterSection :content="site.footer || {}" />
     </div>
 
@@ -43,6 +43,7 @@ defineProps({
     reviews: { type: Array, default: () => [] },
     site: { type: Object, default: () => ({}) },
     captcha: { type: Object, default: () => ({ enabled: false, site_key: '' }) },
+    delivery_charges: { type: Array, default: () => [] },
 });
 
 const showToast = ref(false);

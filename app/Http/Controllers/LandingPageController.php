@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DeliveryCharge;
 use App\Models\Product;
 use App\Models\Review;
 use App\Models\User;
@@ -58,6 +59,11 @@ class LandingPageController extends Controller
             'reviews'           => $reviews,
             'site'              => $activeSettings,
             'captcha'           => $this->getCaptchaConfig(),
+            'delivery_charges'  => DeliveryCharge::active()->get()->map(fn ($d) => [
+                'area_key'   => $d->area_key,
+                'area_name'  => $d->area_name,
+                'charge'     => (float) $d->charge,
+            ])->values()->toArray(),
         ]);
     }
 

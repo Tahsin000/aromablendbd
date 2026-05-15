@@ -45,8 +45,9 @@
                         <select v-model="form.city" required
                                 class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
                             <option value="">{{ c.form_city_placeholder }}</option>
-                            <option value="chittagong">{{ c.city_chittagong }}</option>
-                            <option value="outside">{{ c.city_outside }}</option>
+                            <option v-for="area in deliveryChargesList" :key="area.area_key" :value="area.area_key">
+                                {{ area.area_name }} (ডেলিভারি: {{ area.charge }}৳)
+                            </option>
                         </select>
                     </div>
 
@@ -62,13 +63,17 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ c.form_quantity }}</label>
                         <div class="flex items-center gap-3">
-                            <button type="button" @click="form.quantity = Math.max(1, form.quantity - 1)"
-                                    class="w-10 h-10 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors flex items-center justify-center text-lg font-bold">-</button>
-                            <input v-model.number="form.quantity" type="number" min="1"
+                            <button type="button" @click="decreaseQuantity"
+                                    :disabled="form.quantity <= 1"
+                                    class="w-10 h-10 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors flex items-center justify-center text-lg font-bold disabled:opacity-40 disabled:cursor-not-allowed">-</button>
+                            <input v-model.number="form.quantity" type="number" min="1" :max="maxQuantity"
+                                   @input="clampQuantity"
                                    class="w-20 text-center px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" />
-                            <button type="button" @click="form.quantity++"
-                                    class="w-10 h-10 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors flex items-center justify-center text-lg font-bold">+</button>
+                            <button type="button" @click="increaseQuantity"
+                                    :disabled="form.quantity >= maxQuantity"
+                                    class="w-10 h-10 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors flex items-center justify-center text-lg font-bold disabled:opacity-40 disabled:cursor-not-allowed">+</button>
                         </div>
+                        <p v-if="selectedProduct && selectedProduct.stock > 0" class="text-xs text-gray-500 mt-1">স্টকে {{ formatBangla(selectedProduct.stock) }}টি আছে</p>
                     </div>
 
                     <div>
@@ -82,8 +87,7 @@
                         <h4 class="font-bold text-green-800 mb-2">{{ c.summary_title }}</h4>
                         <div class="space-y-1 text-sm text-green-700">
                             <div class="flex justify-between"><span>{{ selectedProduct.name }} × {{ form.quantity }}</span><span>{{ subtotal }}৳</span></div>
-                            <div class="flex justify-between"><span>প্রথম অর্ডার ছাড় (২০%)</span><span class="text-red-600">-{{ discount }}৳</span></div>
-                            <div class="flex justify-between"><span>ডেলিভারি ({{ form.city === 'chittagong' ? 'চট্টগ্রাম' : 'বাইরে' }})</span><span>{{ deliveryCharge }}৳</span></div>
+                            <div class="flex justify-between"><span>ডেলিভারি ({{ selectedArea ? selectedArea.area_name : '—' }})</span><span>{{ deliveryCharge }}৳</span></div>
                             <div class="flex justify-between font-bold text-base pt-2 border-t border-green-200"><span>মোট</span><span>{{ total }}৳</span></div>
                         </div>
                     </div>
@@ -140,6 +144,7 @@ const props = defineProps({
     products: { type: Object, required: true },
     content: { type: Object, default: () => ({}) },
     captcha: { type: Object, default: () => ({ enabled: false, site_key: '' }) },
+    deliveryCharges: { type: Array, default: () => [] },
 });
 
 const success = ref(false);
@@ -191,10 +196,44 @@ const c = computed(() => ({
     ...props.content,
 }));
 const selectedProduct = computed(() => productsList.value.find(p => p.id === form.product));
-const deliveryCharge = computed(() => form.city === 'chittagong' ? 60 : 120);
+const deliveryChargesList = computed(() =>
+    props.deliveryCharges.length ? props.deliveryCharges : [
+        { area_key: 'dhaka', area_name: 'ঢাকা', charge: 60 },
+        { area_key: 'chittagong', area_name: 'চট্টগ্রাম', charge: 60 },
+        { area_key: 'outside', area_name: 'ঢাকা/চট্টগ্রামের বাইরে', charge: 120 },
+    ]
+);
+const selectedArea = computed(() => deliveryChargesList.value.find(d => d.area_key === form.city) ?? null);
+const deliveryCharge = computed(() => selectedArea.value ? selectedArea.value.charge : 0);
 const subtotal = computed(() => selectedProduct.value ? selectedProduct.value.price * form.quantity : 0);
-const discount = computed(() => Math.round(subtotal.value * 0.20));
-const total = computed(() => subtotal.value - discount.value + deliveryCharge.value);
+const total = computed(() => subtotal.value + deliveryCharge.value);
+const maxQuantity = computed(() => {
+    if (!selectedProduct.value) return 1;
+    const stock = Math.max(0, Number(selectedProduct.value.stock || 0));
+    return stock > 0 ? stock : 1;
+});
+
+function formatBangla(n) {
+    const b = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+    return String(Math.round(Number(n))).replace(/\d/g, d => b[d]);
+}
+
+function decreaseQuantity() {
+    form.quantity = Math.max(1, form.quantity - 1);
+}
+
+function increaseQuantity() {
+    form.quantity = Math.min(maxQuantity.value, form.quantity + 1);
+}
+
+function clampQuantity() {
+    const val = Number.parseInt(form.quantity, 10);
+    if (Number.isNaN(val) || val < 1) {
+        form.quantity = 1;
+    } else {
+        form.quantity = Math.min(val, maxQuantity.value);
+    }
+}
 
 // Captcha functions (cloned from Checkout.vue)
 function onCaptchaSuccess(token) {
