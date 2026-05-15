@@ -8,6 +8,7 @@
         <ProductGallery v-if="site.product_gallery" :content="site.product_gallery" />
         <ReviewCarousel v-if="site.review" :reviews="reviews" :content="site.review" />
         <ContactForm v-if="Object.keys(products).length" :products="products" :captcha="captcha || {}" />
+        <FooterSection :content="site.footer || {}" />
     </div>
 
     <!-- Success Toast -->
@@ -34,6 +35,7 @@ import OfferSection from '../Components/Landing/OfferSection.vue';
 import ProductGallery from '../Components/Landing/ProductGallery.vue';
 import ReviewCarousel from '../Components/Landing/ReviewCarousel.vue';
 import ContactForm from '../Components/Landing/ContactForm.vue';
+import FooterSection from '../Components/Landing/FooterSection.vue';
 
 defineProps({
     products: { type: Object, default: () => ({}) },

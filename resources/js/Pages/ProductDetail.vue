@@ -210,6 +210,8 @@
 
 
         </div>
+
+        <FooterSection :content="site.footer || {}" />
     </div>
 </template>
 
@@ -218,6 +220,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import StickyRibbon from '../Components/Landing/StickyRibbon.vue';
 import AnimatedButton from '../Components/AnimatedButton.vue';
+import FooterSection from '../Components/Landing/FooterSection.vue';
 import {
     ChevronRightIcon, TagIcon, GiftIcon, ClockIcon, ShoppingCartIcon,
     TruckIcon, ShieldCheckIcon, BanknotesIcon, StarIcon,

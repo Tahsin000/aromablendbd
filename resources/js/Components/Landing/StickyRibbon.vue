@@ -8,23 +8,23 @@
                 <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent -translate-x-full animate-shimmer"></div>
             </div>
 
-            <div class="relative max-w-7xl mx-auto px-4 py-3">
-                <div class="flex items-center justify-center gap-3 sm:gap-6 text-white text-sm">
-                    <span class="inline-flex items-center gap-1.5 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full shrink-0 animate-pulse">
+            <div class="relative max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3">
+                <div class="flex items-center justify-center gap-2 sm:gap-6 text-white text-xs sm:text-sm">
+                    <span class="inline-flex items-center gap-1 bg-yellow-400 text-yellow-900 text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full shrink-0 animate-pulse">
                         <TagIcon class="w-3.5 h-3.5" />
                         {{ currentText.badge_text }}
                     </span>
 
-                    <span class="font-medium text-center transition-opacity duration-500 hidden sm:inline">
+                    <span class="font-medium text-center transition-opacity duration-500 text-xs sm:text-sm">
                         {{ currentText.promotion_text }}
                     </span>
 
-                    <div v-if="showTimer && isTimerInRange" class="flex items-center gap-2 shrink-0">
-                        <ClockIcon class="w-4 h-4 text-yellow-300 hidden sm:block" />
-                        <div class="flex gap-1.5">
+                    <div v-if="showTimer && isTimerInRange" class="flex items-center gap-1 sm:gap-2 shrink-0">
+                        <ClockIcon class="w-3 h-3 sm:w-4 sm:h-4 text-yellow-300 hidden sm:block" />
+                        <div class="flex gap-1">
                             <div v-for="(unit, key) in countdown" :key="key" class="flex items-center">
-                                <div class="bg-white/20 backdrop-blur-sm rounded-lg px-2 py-1 min-w-[36px] text-center">
-                                    <span class="font-mono font-bold text-sm">{{ unit }}</span>
+                                <div class="bg-white/20 backdrop-blur-sm rounded-md px-1.5 sm:px-2 py-0.5 sm:py-1 min-w-[28px] sm:min-w-[36px] text-center">
+                                    <span class="font-mono font-bold text-[10px] sm:text-sm">{{ unit }}</span>
                                 </div>
                                 <span v-if="key !== 'seconds'" class="text-yellow-300 mx-0.5 font-bold">:</span>
                             </div>
@@ -32,16 +32,16 @@
                     </div>
 
                     <a :href="currentText.link_url"
-                       class="hidden lg:inline-flex items-center gap-1 bg-white text-green-700 text-xs font-bold px-4 py-1.5 rounded-full hover:bg-yellow-300 hover:text-green-800 transition-all duration-300 transform hover:scale-105">
+                       class="hidden sm:inline-flex items-center gap-1 bg-white text-green-700 text-[10px] sm:text-xs font-bold px-3 sm:px-4 py-1 sm:py-1.5 rounded-full hover:bg-yellow-300 hover:text-green-800 transition-all duration-300 transform hover:scale-105">
                         {{ currentText.cta }}
-                        <ArrowRightIcon class="w-3 h-3" />
+                        <ArrowRightIcon class="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                     </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <div v-if="showRibbon && !isDismissed" class="h-[52px]"></div>
+    <div v-if="showRibbon && !isDismissed" class="h-[40px] sm:h-[52px]"></div>
 </template>
 
 <script setup>
