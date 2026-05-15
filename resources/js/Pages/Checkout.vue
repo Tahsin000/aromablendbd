@@ -425,6 +425,24 @@ function updateItemQty(productId, delta) {
 }
 
 function nextStep() {
+    if (currentStep.value === 2) {
+        if (!form.name.trim()) {
+            showValidationToast('নাম দিন।');
+            return;
+        }
+        if (!form.phone.trim()) {
+            showValidationToast('ফোন নম্বর দিন।');
+            return;
+        }
+        if (!form.address.trim()) {
+            showValidationToast('ঠিকানা দিন।');
+            return;
+        }
+        if (!form.city) {
+            showValidationToast('শহর/এলাকা নির্বাচন করুন।');
+            return;
+        }
+    }
     if (currentStep.value < 3) currentStep.value++;
 }
 
@@ -589,6 +607,33 @@ onMounted(async () => {
 });
 
 function submitOrder() {
+    // Require name, phone, address before submission
+    if (!form.name.trim()) {
+        showValidationToast('নাম দিন।');
+        currentStep.value = 2;
+        return;
+    }
+    if (!form.phone.trim()) {
+        showValidationToast('ফোন নম্বর দিন।');
+        currentStep.value = 2;
+        return;
+    }
+    if (!form.address.trim()) {
+        showValidationToast('ঠিকানা দিন।');
+        currentStep.value = 2;
+        return;
+    }
+    if (!form.city) {
+        showValidationToast('শহর/এলাকা নির্বাচন করুন।');
+        currentStep.value = 2;
+        return;
+    }
+    if (selectedProducts.value.length === 0) {
+        showValidationToast('কমপক্ষে একটি পণ্য নির্বাচন করুন।');
+        currentStep.value = 1;
+        return;
+    }
+
     // Validate transaction fields if required
     if (selectedMethod.value?.requires_transaction) {
         if (!form.payment_number.trim()) {
